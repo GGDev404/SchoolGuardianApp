@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"name": "bleTest",
+			"path": "../bleSp32/bleTest"
+		}
+	],
+	"settings": {}
+}
