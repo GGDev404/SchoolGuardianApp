@@ -1,8 +1,20 @@
+import { Calendar } from "react-native-calendars";
+
+export function t(lang: SupportedLang, section: string, key: string): string {
+  const dict = translations[lang] as any;
+  const dictEn = translations['en'] as any;
+  return (
+    dict?.[section]?.[key] ||
+    dictEn?.[section]?.[key] ||
+    key
+  );
+}
+export type SupportedLang = 'en' | 'es';
 // src/i18n.ts
 export const translations = {
   en: {
     login: {
-      title: 'Attendance App',
+      title: 'School Guardian',
       username: 'Username',
       password: 'Password',
       login: 'Login',
@@ -35,6 +47,16 @@ export const translations = {
       errorRequired: 'Name and email are required',
       saved: 'Saved',
       updated: 'Data updated successfully',
+      settingsTitle: 'Settings',
+      theme: 'Theme',
+      darkTheme: 'Dark',
+      lightTheme: 'Light',
+      language: 'Language',
+      appSettings: 'App Settings',
+      defaultUserName: 'User',
+      defaultUserEmail: 'No email',
+      english: 'English',
+      spanish: 'Spanish',
     },
     home: {
       welcome: 'Welcome',
@@ -43,6 +65,13 @@ export const translations = {
       advertising: 'Advertising',
       startAdvertising: 'Start Advertising',
       stopAdvertising: 'Stop Advertising',
+      todaysClasses: "Today's Classes",
+    },
+    calendar:{
+      title: 'Calendar',
+      today: 'Today',
+      events: 'Events',
+      noEvents: 'No events for this day',
     },
     errors: {
       error: 'Error',
@@ -50,15 +79,15 @@ export const translations = {
   },
   es: {
     login: {
-      title: 'App de Asistencia',
+      title: 'School Guardian',
       username: 'Usuario',
       password: 'Contraseña',
       login: 'Iniciar sesión',
       noAccount: '¿No tienes cuenta?',
       register: 'Registrarse',
       loggingIn: 'Iniciando sesión...',
-      errorRequired: 'Email y contraseña son obligatorios',
-      success: 'Login exitoso',
+      errorRequired: 'Usuario y contraseña son obligatorios',
+      success: 'Inicio de sesión exitoso',
       welcome: 'Bienvenido',
     },
     signup: {
@@ -83,6 +112,16 @@ export const translations = {
       errorRequired: 'Nombre y email son obligatorios',
       saved: 'Guardado',
       updated: 'Datos actualizados correctamente',
+      settingsTitle: 'Configuración',
+      theme: 'Tema',
+      darkTheme: 'Oscuro',
+      lightTheme: 'Claro',
+      language: 'Idioma',
+      appSettings: 'Ajustes de la app',
+      defaultUserName: 'Usuario',
+      defaultUserEmail: 'Sin correo',
+      english: 'Inglés',
+      spanish: 'Español',
     },
     home: {
       welcome: 'Bienvenido',
@@ -91,21 +130,16 @@ export const translations = {
       advertising: 'Anunciando',
       startAdvertising: 'Iniciar anuncio',
       stopAdvertising: 'Detener anuncio',
+      todaysClasses: "Clases de hoy",
+    },
+    calendar:{
+      title: 'Calendario',
+      today: 'Hoy',
+      events: 'Eventos',
+      noEvents: 'No hay eventos para este día',
     },
     errors: {
       error: 'Error',
     },
   },
 };
-
-export type SupportedLang = 'en' | 'es';
-
-export function t(lang: SupportedLang, section: string, key: string): string {
-  const dict = translations[lang] as any;
-  const dictEn = translations['en'] as any;
-  return (
-    dict?.[section]?.[key] ||
-    dictEn?.[section]?.[key] ||
-    key
-  );
-}

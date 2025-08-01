@@ -6,6 +6,7 @@ export async function signUp({ name, email, password, role, user_uuid }: {
   password: string;
   role: string;
   user_uuid?: string;
+  matricula?: string;
 }) {
   const body: any = { name, email, password, role };
   if (role === 'Student' && user_uuid) body['user_uuid'] = user_uuid;
@@ -21,7 +22,7 @@ export async function signUp({ name, email, password, role, user_uuid }: {
     responseJson = null;
   }
   if (!res.ok) {
-    const errorMsg = responseJson?.message || responseJson?.error || 'Error al crear usuario';
+    const errorMsg = responseJson?.message || responseJson?.error || require('../i18n').t('es', 'errors', 'errorCreatingUser');
     throw new Error(errorMsg);
   }
   return responseJson;

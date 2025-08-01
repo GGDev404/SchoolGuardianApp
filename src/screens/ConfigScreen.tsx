@@ -1,133 +1,408 @@
+import { StatusBar } from 'react-native';
+import changeNavigationBarColor from 'react-native-navigation-bar-color';
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, TextInput, StyleSheet, Alert, ScrollView } from 'react-native';
-// import { useNavigation } from '@react-navigation/native';
-import { colors } from '../theme/colors';
+import { Animated } from 'react-native';
+import { TouchableOpacity } from 'react-native';
+const usFlag = require('../assets/us.png');
+const mxFlag = require('../assets/mx.png');
+import { Modal } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { colorPalettes } from '../theme/colors';
+import { useNavigation } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+// Helper para crear estilos dependientes del tema
+function makeStyles(colors: typeof colorPalettes['dark']) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+      padding: 0,
+    },
+    modalOverlayDropdown: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.15)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    profileSection: {
+      alignItems: 'center',
+      marginTop: 32,
+      marginBottom: 16,
+    },
+    avatar: {
+      width: 120,
+      height: 120,
+      borderRadius: 60,
+      backgroundColor: colors.card,
+      marginBottom: 16,
+    },
+    profileName: {
+      color: colors.text,
+      fontWeight: 'bold',
+      fontSize: 26,
+      textAlign: 'center',
+      marginBottom: 2,
+    },
+    profileEmail: {
+      color: colors.textSecondary,
+      fontSize: 17,
+      textAlign: 'center',
+      marginBottom: 18,
+    },
+    sectionTitle: {
+      color: colors.text,
+      fontWeight: 'bold',
+      fontSize: 20,
+      marginTop: 18,
+      marginBottom: 10,
+      marginLeft: 24,
+    },
+    sectionRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.card,
+      borderRadius: 16,
+      marginHorizontal: 24,
+      marginBottom: 14,
+      padding: 12,
+      shadowColor: '#1A1F1A',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.08,
+      shadowRadius: 2,
+      elevation: 2,
+    },
+    iconCard: {
+      width: 44,
+      height: 44,
+      borderRadius: 12,
+      backgroundColor: colors.input,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: 16,
+    },
+    sectionText: {
+      color: colors.text,
+      fontSize: 17,
+      fontWeight: '500',
+    },
+    languageInlineRow: {
+      flexDirection: 'row',
+      justifyContent: 'flex-start',
+      marginTop: 8,
+      gap: 10,
+    },
+    dropdownContainer: {
+      marginTop: 8,
+      marginBottom: 8,
+    },
+    dropdownSelected: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.input,
+      borderRadius: 8,
+      paddingVertical: 8,
+      paddingHorizontal: 14,
+      borderWidth: 1,
+      borderColor: colors.border,
+      elevation: 1,
+    },
+    flagIcon: {
+      width: 24,
+      height: 18,
+      borderRadius: 4,
+      marginRight: 10,
+    },
+    dropdownText: {
+      color: colors.text,
+      fontWeight: 'bold',
+      fontSize: 15,
+    },
+    dropdownMenuModalDropdown: {
+      backgroundColor: colors.card,
+      borderRadius: 16,
+      paddingVertical: 8,
+      paddingHorizontal: 0,
+      minWidth: 170,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.18,
+      shadowRadius: 12,
+      elevation: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+      marginTop: 0,
+    },
+    dropdownItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: 10,
+      paddingHorizontal: 16,
+      borderRadius: 8,
+      marginBottom: 2,
+      backgroundColor: colors.input,
+      marginHorizontal: 4,
+    },
+    logoutButtonModern: {
+      backgroundColor: colors.error,
+      borderRadius: 16,
+      paddingVertical: 14,
+      marginHorizontal: 32,
+      marginTop: 28,
+      marginBottom: 32,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      shadowColor: colors.error,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.18,
+      shadowRadius: 8,
+      elevation: 8,
+    },
+    logoutButtonTextModern: {
+      color: '#fff',
+      fontWeight: 'bold',
+      fontSize: 18,
+      textAlign: 'center',
+      marginLeft: 6,
+      letterSpacing: 1,
+    },
+  });
+}
 import CustomButton from '../components/CustomButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: colors.background,
-  },
-  input: {
-    backgroundColor: colors.input,
-    color: colors.inputText,
-    borderWidth: 1,
-    borderColor: colors.border,
-    marginBottom: 12,
-    padding: 12,
-    borderRadius: 8,
-    fontSize: 16,
-  },
-  label: {
-    color: colors.text,
-    fontSize: 16,
-    marginBottom: 6,
-  },
-  button: {
-    backgroundColor: colors.button,
-    borderRadius: 8,
-    paddingVertical: 14,
-    marginTop: 10,
-  },
-  buttonText: {
-    color: colors.buttonText,
-    fontWeight: 'bold',
-    fontSize: 16,
-    textAlign: 'center',
-  },
-  infoText: {
-    color: colors.textSecondary,
-    marginTop: 20,
-    fontSize: 12,
-  },
-});
-
 import { UserContext } from '../App';
-import { t, SupportedLang } from '../i18n';
-const ConfigScreen = ({ navigation }: any) => {
-  const { setUser, lang, setLang } = useContext(UserContext);
-  const [userLocal, setUserLocal] = useState<any>(null);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+import { SupportedLang, t } from '../i18n';
+import { ThemeContext } from '../App';
 
+const ConfigScreen = () => {
+  // Forzar color de status/navigation bar al abrir/cerrar dropdowns
+  const { user, setUser, lang, setLang } = useContext(UserContext);
+  const { theme, setTheme } = useContext(ThemeContext);
+  const colors = colorPalettes[theme as 'dark' | 'light'] || colorPalettes.dark;
+  const styles = makeStyles(colors);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [showThemeDropdown, setShowThemeDropdown] = useState(false);
+  const themeDropdownRef = React.useRef<View>(null);
+  const [themeDropdownPos, setThemeDropdownPos] = useState<{ x: number; y: number } | null>(null);
+  const dropdownAnim = React.useRef(new Animated.Value(0)).current;
+  const dropdownRef = React.useRef<View>(null);
+  const [dropdownPos, setDropdownPos] = useState<{ x: number; y: number } | null>(null);
+  const navigation = useNavigation<any>();
+
+
+  // Persistently force navigation bar color while dropdowns are open
   useEffect(() => {
-    AsyncStorage.getItem('@userSession').then(session => {
-      if (session) {
-        const sessionData = JSON.parse(session);
-        // Si la respuesta tiene la propiedad 'user', usarla
-        const userData = sessionData.user || sessionData;
-        setUserLocal(userData);
-        setName(userData.name || '');
-        setEmail(userData.email || '');
-      }
-    });
+    const setBarColors = () => {
+      StatusBar.setBarStyle(theme === 'dark' ? 'light-content' : 'dark-content', true);
+      changeNavigationBarColor(colors.background, theme === 'dark');
+    };
+    setBarColors();
+    return () => {
+      setBarColors(); // Force color again after modal closes
+    };
+  }, [showThemeDropdown, showDropdown, theme, colors.background]);
+
+  // WebSocket para notificaciones en tiempo real
+  useEffect(() => {
+    const ws = new WebSocket('wss://api-schoolguardian.onrender.com');
+    ws.onopen = () => {
+      console.log('WebSocket conectado');
+    };
+    ws.onerror = (err) => {
+      console.log('WebSocket error:', err);
+    };
+    ws.onclose = () => {
+      console.log('WebSocket cerrado');
+    };
+    return () => {
+      ws.close();
+    };
   }, []);
 
-  const handleSave = async () => {
-    if (!name || !email) {
-      Alert.alert('Error', 'Nombre y email son obligatorios');
-      return;
+  // Animate dropdown open/close
+  useEffect(() => {
+    Animated.timing(dropdownAnim, {
+      toValue: showDropdown ? 1 : 0,
+      duration: 180,
+      useNativeDriver: true,
+    }).start();
+  }, [showDropdown]);
+  // Measure dropdown position when opening
+  const handleDropdownPress = () => {
+    if (dropdownRef.current) {
+      dropdownRef.current.measureInWindow((x: number, y: number, width: number, height: number) => {
+        setDropdownPos({ x, y: y + height });
+        setShowDropdown(true);
+      });
+    } else {
+      setShowDropdown(true);
     }
-    // Actualizar localmente y en el backend si lo deseas
-    const updatedUser = { ...userLocal, name, email };
-    await AsyncStorage.setItem('@userSession', JSON.stringify(updatedUser));
-    setUserLocal(updatedUser);
-    setUser(updatedUser);
-    Alert.alert('Guardado', 'Datos actualizados correctamente');
   };
-
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={{ color: colors.text, fontSize: 22, fontWeight: 'bold', marginBottom: 20, textAlign: 'center' }}>{t(lang, 'config', 'title')}</Text>
-      <TextInput
-        style={styles.input}
-        placeholder={t(lang, 'config', 'name')}
-        placeholderTextColor={colors.inputPlaceholder}
-        value={name}
-        onChangeText={setName}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder={t(lang, 'config', 'email')}
-        placeholderTextColor={colors.inputPlaceholder}
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-      />
-      <CustomButton title={t(lang, 'config', 'save')} onPress={handleSave} style={styles.button} textStyle={styles.buttonText} />
-      <CustomButton
-        title={t(lang, 'config', 'logout')}
-        onPress={async () => {
-          await AsyncStorage.removeItem('@userSession');
-          setUser(null);
-        }}
-        style={[styles.button, { backgroundColor: colors.error }]}
-        textStyle={styles.buttonText}
-      />
-      <View style={{ marginTop: 20, alignItems: 'center' }}>
-        <Text style={{ color: colors.text, fontWeight: 'bold', marginBottom: 8 }}>{'Language / Idioma'}</Text>
-        <View style={{ flexDirection: 'row', gap: 12 }}>
-          <CustomButton
-            title="English"
-            onPress={() => setLang('en')}
-            style={{ backgroundColor: lang === 'en' ? colors.button : colors.card, marginRight: 8, paddingHorizontal: 16 }}
-            textStyle={{ color: lang === 'en' ? colors.buttonText : colors.text }}
-          />
-          <CustomButton
-            title="Español"
-            onPress={() => setLang('es')}
-            style={{ backgroundColor: lang === 'es' ? colors.button : colors.card, paddingHorizontal: 16 }}
-            textStyle={{ color: lang === 'es' ? colors.buttonText : colors.text }}
-          />
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={["left", "right", "top"]}>
+      <ScrollView contentContainerStyle={styles.container}>
+        {/* Botón flotante para regresar */}
+        <TouchableOpacity onPress={() => navigation.goBack()} style={{ position: 'absolute', top: 18, left: 18, zIndex: 10, backgroundColor: colors.card, borderRadius: 20, padding: 6, elevation: 4 }}>
+          <Ionicons name="arrow-back" size={26} color={colors.text} />
+        </TouchableOpacity>
+
+        {/* Avatar y datos con icono idatr */}
+        <View style={styles.profileSection}>
+          <Image source={{ uri: user?.avatar || 'https://s3.amazonaws.com/uploads-dev-vtxapp-net/athletes/profile/dev_AT_vtx.com_2025_07_28_11_01_54.png' }} style={styles.avatar} />
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
+            <Text style={styles.profileName}>{user?.name ? user.name : t(lang, 'config', 'defaultUserName')}</Text>
+          </View>
+          <Text style={styles.profileEmail}>{user?.email ? user.email : t(lang, 'config', 'defaultUserEmail')}</Text>
+          {user?.matricula && (
+            <Text style={[styles.profileEmail, { fontSize: 14}]}>Matrícula: {user.matricula}</Text>
+          )}
         </View>
-      </View>
-      <Text style={styles.infoText}>{t(lang, 'config', 'role')}: {userLocal?.role || '-'}</Text>
-      {userLocal?.user_uuid && <Text style={styles.infoText}>UUID: {userLocal.user_uuid}</Text>}
-    </ScrollView>
+
+        {/* Botón Editar Perfil */}
+        <TouchableOpacity
+          style={[styles.sectionRow, { marginTop: 8 }]}
+          onPress={() => navigation.navigate('EditProfile')}
+        >
+          <View style={styles.iconCard}>
+            <Ionicons name="person-outline" size={20} color={colors.text} />
+          </View>
+          <Text style={styles.sectionText}>Editar Perfil</Text>
+          <View style={{ flex: 1 }} />
+          <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
+        </TouchableOpacity>
+
+        {/* Settings Section */}
+        <Text style={styles.sectionTitle}>{t(lang, 'config', 'settingsTitle')}</Text>
+        {/* Theme first (dropdown alineado) */}
+        <View style={styles.sectionRow}>
+          <View style={styles.iconCard}><Ionicons name="sunny-outline" size={28} color={colors.button} /></View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.sectionText}>{t(lang, 'config', 'theme')}</Text>
+            <View style={{ position: 'relative' }}>
+              <TouchableOpacity
+                style={styles.dropdownContainer}
+                activeOpacity={0.8}
+                ref={themeDropdownRef}
+                onPress={() => {
+                  if (themeDropdownRef.current) {
+                    themeDropdownRef.current.measureInWindow((x, y, width, height) => {
+                      setThemeDropdownPos({ x, y: y + height });
+                      setShowThemeDropdown(true);
+                    });
+                  } else {
+                    setShowThemeDropdown(true);
+                  }
+                }}
+              >
+                <View style={styles.dropdownSelected}>
+                  <Ionicons name={theme === 'dark' ? 'moon' : 'sunny'} size={22} color={colors.text} style={{ marginRight: 10 }} />
+                  <Text style={styles.dropdownText}>{t(lang, 'config', theme === 'dark' ? 'darkTheme' : 'lightTheme')}</Text>
+                  <Ionicons name={showThemeDropdown ? 'chevron-up-outline' : 'chevron-down-outline'} size={20} color={colors.textSecondary} style={{ marginLeft: 8 }} />
+                </View>
+              </TouchableOpacity>
+              <Modal visible={showThemeDropdown} transparent animationType="fade">
+                <TouchableOpacity style={styles.modalOverlayDropdown} activeOpacity={1} onPress={() => setShowThemeDropdown(false)}>
+                  {themeDropdownPos && (
+                    <View style={{
+                      ...styles.dropdownMenuModalDropdown,
+                      position: 'absolute',
+                      left: themeDropdownPos.x,
+                      top: themeDropdownPos.y,
+                      zIndex: 999,
+                    }}>
+                      <TouchableOpacity
+                        style={styles.dropdownItem}
+                        activeOpacity={0.7}
+                        onPress={() => { setTheme('dark'); setShowThemeDropdown(false); }}
+                      >
+                        <Ionicons name="moon" size={22} color={colors.text} style={{ marginRight: 10 }} />
+                        <Text style={styles.dropdownText}>{t(lang, 'config', 'darkTheme')}</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.dropdownItem}
+                        activeOpacity={0.7}
+                        onPress={() => { setTheme('light'); setShowThemeDropdown(false); }}
+                      >
+                        <Ionicons name="sunny" size={22} color={colors.text} style={{ marginRight: 10 }} />
+                        <Text style={styles.dropdownText}>{t(lang, 'config', 'lightTheme')}</Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
+                </TouchableOpacity>
+              </Modal>
+            </View>
+          </View>
+        </View>
+        {/* Language second */}
+        <View style={styles.sectionRow}>
+          <View style={styles.iconCard}><Ionicons name="globe-outline" size={28} color={colors.button} /></View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.sectionText}>{t(lang, 'config', 'language')}</Text>
+            <View style={{ position: 'relative' }}>
+              <TouchableOpacity
+                style={styles.dropdownContainer}
+                activeOpacity={0.8}
+                onPress={handleDropdownPress}
+                ref={dropdownRef}
+              >
+                <View style={styles.dropdownSelected}>
+                  <Image source={lang === 'en' ? usFlag : mxFlag} style={styles.flagIcon} />
+                  <Text style={styles.dropdownText}>{t(lang, 'config', lang === 'en' ? 'english' : 'spanish')}</Text>
+                  <Ionicons name={showDropdown ? 'chevron-up-outline' : 'chevron-down-outline'} size={20} color={colors.textSecondary} style={{ marginLeft: 8 }} />
+                </View>
+              </TouchableOpacity>
+              <Modal visible={showDropdown} transparent animationType="fade">
+                <TouchableOpacity style={styles.modalOverlayDropdown} activeOpacity={1} onPress={() => setShowDropdown(false)}>
+                  {dropdownPos && (
+                    <Animated.View style={{
+                      ...styles.dropdownMenuModalDropdown,
+                      opacity: dropdownAnim,
+                      transform: [{ scaleY: dropdownAnim }],
+                      position: 'absolute',
+                      left: dropdownPos.x,
+                      top: dropdownPos.y,
+                      zIndex: 999,
+                    }}>
+                      <TouchableOpacity
+                        style={styles.dropdownItem}
+                        activeOpacity={0.7}
+                        onPress={() => { setLang('en'); setShowDropdown(false); }}
+                      >
+                        <Image source={usFlag} style={styles.flagIcon} />
+                        <Text style={styles.dropdownText}>{t(lang, 'config', 'english')}</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.dropdownItem}
+                        activeOpacity={0.7}
+                        onPress={() => { setLang('es'); setShowDropdown(false); }}
+                      >
+                        <Image source={mxFlag} style={styles.flagIcon} />
+                        <Text style={styles.dropdownText}>{t(lang, 'config', 'spanish')}</Text>
+                      </TouchableOpacity>
+                    </Animated.View>
+                  )}
+                </TouchableOpacity>
+              </Modal>
+            </View>
+          </View>
+        </View>
+
+
+        {/* Logout mejorado */}
+        <TouchableOpacity
+          style={styles.logoutButtonModern}
+          activeOpacity={0.85}
+          onPress={async () => { await AsyncStorage.removeItem('@userSession'); setUser(null); }}
+        >
+          <Ionicons name="log-out-outline" size={22} color="#fff" style={{ marginRight: 8 }} />
+          <Text style={styles.logoutButtonTextModern}>{t(lang, 'config', 'logout')}</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
+
 
 export default ConfigScreen;

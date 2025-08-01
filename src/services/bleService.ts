@@ -4,37 +4,36 @@ import uuid from 'react-native-uuid';
 import { BleManager } from 'react-native-ble-plx';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert, PermissionsAndroid, Platform } from 'react-native';
+import { UserContext } from '../App';
+import { t } from '../i18n';
 
 const bleManager = new BleManager();
 
 export async function initializeDeviceUUID(addLog: (msg: string) => void, setDeviceUUID: (uuid: string) => void, setIsInitialized: (v: boolean) => void) {
   try {
-    addLog('Inicializando UUID del dispositivo...');
+    addLog(t('es', 'ble', 'initializingUUID'));
     let storedUUID = await AsyncStorage.getItem('@deviceUUID');
     if (!storedUUID) {
       storedUUID = uuid.v4().replace(/-/g, '').substring(0, 16);
       await AsyncStorage.setItem('@deviceUUID', storedUUID);
-      addLog(`Nuevo UUID generado: ${storedUUID}`);
+      addLog(t('es', 'ble', 'newUUIDGenerated') + `: ${storedUUID}`);
     } else {
-      addLog(`UUID recuperado: ${storedUUID}`);
+      addLog(t('es', 'ble', 'uuidRecovered') + `: ${storedUUID}`);
     }
     setDeviceUUID(storedUUID);
     setIsInitialized(true);
   } catch (err: any) {
-    addLog(`Error inicializando UUID: ${err.message}`);
-    Alert.alert('Error', 'No se pudo inicializar el identificador del dispositivo');
+    addLog(t('es', 'ble', 'errorInitializingUUID') + `: ${err.message}`);
+    Alert.alert(t('es', 'errors', 'error'), t('es', 'ble', 'errorInitializingDeviceID'));
   }
 }
 
 export async function checkBluetoothState(addLog: (msg: string) => void, setBluetoothState: (state: string) => void) {
   try {
     const state = await bleManager.state();
-    setBluetoothState(state);
-    addLog(`Estado Bluetooth: ${state}`);
-    return state === 'PoweredOn';
+    return state;
   } catch (err: any) {
-    addLog(`Error verificando Bluetooth: ${err.message}`);
-    return false;
+    return 'unknown';
   }
 }
 
@@ -57,17 +56,34 @@ export async function requestPermissions(addLog: (msg: string) => void) {
       addLog('Solicitando permisos...');
       const apiLevel = typeof Platform.Version === 'number' ? Platform.Version : parseInt(Platform.Version, 10);
       const isAndroid12OrHigher = apiLevel >= 31;
-      let permissions = [
-        PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
-        PermissionsAndroid.PERMISSIONS.BLUETOOTH_ADVERTISE,
-        PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
-      ];
-      if (!isAndroid12OrHigher) {
-        permissions.push(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
-        permissions.push('android.permission.BLUETOOTH' as any);
-        permissions.push('android.permission.BLUETOOTH_ADMIN' as any);
+      let permissions: any[];
+      if (isAndroid12OrHigher) {
+        permissions = [
+          PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+          PermissionsAndroid.PERMISSIONS.BLUETOOTH_ADVERTISE,
+          PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+        ];
+      } else {
+        permissions = [
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+          'android.permission.BLUETOOTH',
+          'android.permission.BLUETOOTH_ADMIN',
+        ];
       }
+      addLog('Permisos solicitados: ' + JSON.stringify(permissions));
       const granted = await PermissionsAndroid.requestMultiple(permissions);
+      addLog('Permisos concedidos: ' + JSON.stringify(granted));
+      const neverAskAgain = Object.entries(granted)
+        .filter(([_, status]) => status === 'never_ask_again')
+        .map(([perm]) => perm);
+      if (neverAskAgain.length > 0) {
+        Alert.alert(
+          'Permisos requeridos',
+          'Algunos permisos fueron rechazados permanentemente. Ve a Ajustes > Apps > BLEAdvertiserApp > Permisos y activa manualmente Bluetooth y Ubicación.'
+        );
+        addLog('Permisos never_ask_again: ' + JSON.stringify(neverAskAgain));
+        throw new Error('Permisos rechazados permanentemente');
+      }
       const allGranted = Object.values(granted).every(
         status => status === PermissionsAndroid.RESULTS.GRANTED
       );
@@ -123,21 +139,32 @@ export async function startAdvertising({
     }
     setStatusMessage('Preparando payload...');
     const payload = encodePayload(studentId, deviceUUID);
-    addLog(`Payload generado: ${JSON.stringify(payload)}`);
-    setStatusMessage('Iniciando advertising...');
-    await BleAdvertiser.broadcast(
-      '0000FFF0-0000-1000-8000-00805F9B34FB',
-      payload,
-      {
-        includeDeviceName: false,
-        advertiseMode: 1,
-        connectable: false,
-        txPowerLevel: 1,
-      }
-    );
-    addLog('Advertising iniciado con éxito');
-    setStatusMessage('Advertising ACTIVO');
-    return true;
+    addLog(`[ADVERTISING] Payload generado: ${JSON.stringify(payload)}`);
+    const serviceUUID = '0000FFF0-0000-1000-8000-00805F9B34FB';
+    const broadcastParams = {
+      includeDeviceName: false,
+      advertiseMode: 1,
+      connectable: false,
+      txPowerLevel: 1,
+    };
+    addLog(`[ADVERTISING] Intentando iniciar advertising con UUID: ${serviceUUID}`);
+    addLog(`[ADVERTISING] Parámetros: ${JSON.stringify(broadcastParams)}`);
+    try {
+      setStatusMessage('Iniciando advertising...');
+      await BleAdvertiser.broadcast(
+        serviceUUID,
+        payload,
+        broadcastParams
+      );
+      addLog('[ADVERTISING] Advertising iniciado con éxito');
+      setStatusMessage('Advertising ACTIVO');
+      return true;
+    } catch (broadcastErr: any) {
+      addLog(`[ADVERTISING] Error en broadcast: ${broadcastErr?.message || broadcastErr}`);
+      setStatusMessage('Error al iniciar advertising');
+      Alert.alert('Error', `No se pudo iniciar el advertising: ${broadcastErr?.message || broadcastErr}`);
+      return false;
+    }
   } catch (err: any) {
     addLog(`Error en el proceso: ${err.message}`);
     setStatusMessage('Error al iniciar');
