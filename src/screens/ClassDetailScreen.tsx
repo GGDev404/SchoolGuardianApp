@@ -3,7 +3,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colorPalettes } from '../theme/colors';
-import { ThemeContext } from '../App';
+import { ThemeContext } from '../contexts/AppContexts';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const defaultSchedule = [

@@ -4,8 +4,8 @@ import uuid from 'react-native-uuid';
 import { BleManager } from 'react-native-ble-plx';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert, PermissionsAndroid, Platform } from 'react-native';
-import { UserContext } from '../App';
-import { t } from '../i18n';
+import { UserContext } from '../contexts/AppContexts';
+import { t } from '../hooks/useTranslation';
 
 const bleManager = new BleManager();
 

@@ -7,7 +7,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { colorPalettes } from '../theme/colors';
-import { ThemeContext } from '../App';
+import { ThemeContext } from '../contexts/AppContexts';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const NotificationsScreen: React.FC = () => {

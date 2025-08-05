@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { t } from '../i18n';
 import { View, Text, TextInput, StyleSheet, Alert, TouchableOpacity, Image, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { launchImageLibrary } from 'react-native-image-picker';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { colorPalettes } from '../theme/colors';
-import { ThemeContext, UserContext } from '../App';
+import { ThemeContext, UserContext } from '../contexts/AppContexts';
 import CustomButton from '../components/CustomButton';
 import { signUp } from '../services/authService';
 import { initializeDeviceUUID } from '../services/bleService';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { useTranslation } from '../hooks/useTranslation';
 
 type RootStackParamList = {
   Home: undefined;
@@ -71,11 +71,10 @@ const makeStyles = (colors: typeof colorPalettes['dark']) => StyleSheet.create({
 const SignUpScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { theme } = useContext(ThemeContext);
-  const { lang } = useContext(UserContext);
+  const { lang, setUser } = useContext(UserContext);
+  const { t } = useTranslation();
   const colors = colorPalettes[theme as 'dark' | 'light'] || colorPalettes.dark;
   const styles = makeStyles(colors);
-
-  const { setUser } = useContext(UserContext);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -374,7 +373,7 @@ const SignUpScreen = () => {
         <TouchableOpacity onPress={() => navigation.navigate('Login')} style={{ marginRight: 12 }}>
           <Ionicons name="arrow-back" size={26} color={colors.text} />
         </TouchableOpacity>
-        <Text style={{ color: colors.text, fontWeight: 'bold', fontSize: 22 }}>Crear Cuenta</Text>
+        <Text style={{ color: colors.text, fontWeight: 'bold', fontSize: 22 }}>{t('signup', 'createAccount')}</Text>
       </View>
 
       <ScrollView contentContainerStyle={{ padding: 24 }}>
@@ -407,7 +406,7 @@ const SignUpScreen = () => {
             </View>
           </TouchableOpacity>
           <Text style={{ color: colors.textSecondary, fontSize: 14, marginTop: 8 }}>
-            Seleccionar foto de perfil
+            {t('signup', 'selectProfilePhoto')}
           </Text>
         </View>
 
@@ -440,26 +439,26 @@ const SignUpScreen = () => {
 
           <View>
             <Text style={{ color: colors.text, fontSize: 16, fontWeight: '600', marginBottom: 8 }}>
-              Nombre *
+              {t('signup', 'name')} *
             </Text>
             <TextInput
               style={styles.input}
               value={formData.name}
               onChangeText={(text) => setFormData({ ...formData, name: text })}
-              placeholder="Nombre completo"
+              placeholder={t('signup', 'fullName')}
               placeholderTextColor={colors.textSecondary}
             />
           </View>
 
           <View>
             <Text style={{ color: colors.text, fontSize: 16, fontWeight: '600', marginBottom: 8 }}>
-              Email *
+              {t('signup', 'email')} *
             </Text>
             <TextInput
               style={styles.input}
               value={formData.email}
               onChangeText={(text) => setFormData({ ...formData, email: text })}
-              placeholder="correo@ejemplo.com"
+              placeholder={t('signup', 'emailPlaceholder')}
               placeholderTextColor={colors.textSecondary}
               keyboardType="email-address"
               autoCapitalize="none"
@@ -468,13 +467,13 @@ const SignUpScreen = () => {
 
           <View>
             <Text style={{ color: colors.text, fontSize: 16, fontWeight: '600', marginBottom: 8 }}>
-              Contraseña *
+              {t('signup', 'password')} *
             </Text>
             <TextInput
               style={styles.input}
               value={formData.password}
               onChangeText={(text) => setFormData({ ...formData, password: text })}
-              placeholder="Mínimo 8 caracteres"
+              placeholder={t('signup', 'passwordPlaceholder')}
               placeholderTextColor={colors.textSecondary}
               secureTextEntry
             />
@@ -482,13 +481,13 @@ const SignUpScreen = () => {
 
           <View>
             <Text style={{ color: colors.text, fontSize: 16, fontWeight: '600', marginBottom: 8 }}>
-              Matrícula *
+              {t('signup', 'matricula')} *
             </Text>
             <TextInput
               style={styles.input}
               value={formData.matricula}
               onChangeText={(text) => setFormData({ ...formData, matricula: text })}
-              placeholder="Número de matrícula"
+              placeholder={t('signup', 'matriculaPlaceholder')}
               placeholderTextColor={colors.textSecondary}
             />
           </View>
@@ -511,7 +510,7 @@ const SignUpScreen = () => {
             <ActivityIndicator color="#fff" size="small" />
           ) : (
             <Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold' }}>
-              Crear Cuenta
+              {t('signup', 'createAccount')}
             </Text>
           )}
         </TouchableOpacity>
@@ -521,7 +520,7 @@ const SignUpScreen = () => {
           style={{ alignItems: 'center', marginTop: 20 }}
         >
           <Text style={{ color: colors.textSecondary, fontSize: 16 }}>
-            ¿Ya tienes cuenta? <Text style={{ color: colors.button, fontWeight: 'bold' }}>Inicia sesión</Text>
+            {t('signup', 'alreadyHaveAccount')} <Text style={{ color: colors.button, fontWeight: 'bold' }}>{t('signup', 'signIn')}</Text>
           </Text>
         </TouchableOpacity>
       </ScrollView>

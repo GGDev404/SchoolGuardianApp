@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { colorPalettes } from '../theme/colors';
-import { ThemeContext, UserContext } from '../App';
+import { ThemeContext, UserContext } from '../contexts/AppContexts';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const EditProfileScreen: React.FC = () => {
@@ -134,6 +134,8 @@ const EditProfileScreen: React.FC = () => {
         const newAvatar = data.profile_image_url || (formData.profile_image ? formData.profile_image.uri : imageUri);
         const updatedUser = {
           ...user,
+          id: user?.id || '', // Ensure id is always a string
+          email: user?.email || '', // Ensure email is always a string
           name: data.name || formData.name,
           matricula: formData.matricula || user?.matricula, // Guardar matrícula del formulario
           avatar: newAvatar,

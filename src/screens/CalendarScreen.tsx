@@ -2,10 +2,11 @@ import React, { useState, useContext, useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colorPalettes } from '../theme/colors';
-import { ThemeContext, UserContext } from '../App';
+import { ThemeContext, UserContext } from '../contexts/AppContexts';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { t } from '../i18n';
+import { useTranslation } from '../hooks/useTranslation';
+
 
 // Configuración de idioma para el calendario
 LocaleConfig.locales['es'] = {
@@ -36,6 +37,8 @@ const getMarkedDates = (colors: any): Record<string, any> => {
   });
   return marked;
 };
+
+const {t} =useTranslation();
 
 
 const CalendarScreen = () => {
@@ -71,7 +74,7 @@ const CalendarScreen = () => {
     <SafeAreaView style={styles.container} edges={["left", "right", "bottom"]}>
       <View>
         <Text style={{ color: colors.text, fontSize: 30, fontWeight: 'bold', marginBottom: 20, textAlign: 'center' }}>
-          {t(lang, 'calendar', 'title')}
+          {t('calendar', 'title')}
         </Text>
       </View>
       <Calendar

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, Alert, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colorPalettes } from '../theme/colors';
-import { ThemeContext } from '../App';
+import { ThemeContext } from '../contexts/AppContexts';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import CustomButton from '../components/CustomButton';
 
@@ -60,8 +60,8 @@ type RootStackParamList = {
 };
 
 import { useContext } from 'react';
-import { UserContext } from '../App';
-import { t } from '../i18n';
+import { UserContext } from '../contexts/AppContexts';
+import { useTranslation } from '../hooks/useTranslation';
 
 const LoginScreen = () => {
   const { theme } = useContext(ThemeContext);
@@ -73,6 +73,7 @@ const LoginScreen = () => {
   const [password, setPassword] = useState('');
   const [deviceUUID, setDeviceUUID] = useState('');
   const [loading, setLoading] = useState(false);
+  const {t} = useTranslation();
 
   React.useEffect(() => {
     // Recuperar el UUID del dispositivo si existe en AsyncStorage
@@ -140,7 +141,7 @@ const LoginScreen = () => {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert(t(lang, 'errors', 'error'), t(lang, 'login', 'errorRequired'));
+      Alert.alert(t( 'errors', 'error'), t( 'login', 'errorRequired'));
       return;
     }
     setLoading(true);
@@ -187,7 +188,7 @@ const LoginScreen = () => {
       const end = Date.now();
       console.log('[Login] Session saved and user set at', new Date(end).toISOString(), 'Total elapsed:', end - start, 'ms');
       setUser(sessionToSave);
-      Alert.alert(t(lang, 'login', 'success'), t(lang, 'login', 'welcome'));
+      Alert.alert(t( 'login', 'success'), t( 'login', 'welcome'));
     } catch (err: any) {
       const errorTime = Date.now();
       console.log('[Login] Error at', new Date(errorTime).toISOString(), 'Elapsed:', errorTime - start, 'ms', 'Error:', err);
@@ -218,7 +219,7 @@ const LoginScreen = () => {
               textAlign: 'center',
               marginBottom: 8
             }}>
-              {t(lang, 'login', 'title')}
+              {t( 'login', 'title')}
             </Text>
             <Text style={{ 
               color: colors.textSecondary, 

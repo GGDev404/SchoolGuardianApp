@@ -172,13 +172,14 @@ function makeStyles(colors: typeof colorPalettes['dark']) {
 }
 import CustomButton from '../components/CustomButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { UserContext } from '../App';
-import { SupportedLang, t } from '../i18n';
-import { ThemeContext } from '../App';
+import { UserContext } from '../contexts/AppContexts';
+import { SupportedLang } from '../i18n';
+import { ThemeContext } from '../contexts/AppContexts';
+import { useTranslation } from '../hooks/useTranslation';
 
 const ConfigScreen = () => {
   // Forzar color de status/navigation bar al abrir/cerrar dropdowns
-  const { user, setUser, lang, setLang } = useContext(UserContext);
+  const { user, setUser, lang , setLang } = useContext(UserContext);
   const { theme, setTheme } = useContext(ThemeContext);
   const colors = colorPalettes[theme as 'dark' | 'light'] || colorPalettes.dark;
   const styles = makeStyles(colors);
@@ -191,6 +192,7 @@ const ConfigScreen = () => {
   const [dropdownPos, setDropdownPos] = useState<{ x: number; y: number } | null>(null);
   const navigation = useNavigation<any>();
 
+  const {t} = useTranslation();
 
   // Persistently force navigation bar color while dropdowns are open
   useEffect(() => {
@@ -252,9 +254,9 @@ const ConfigScreen = () => {
         <View style={styles.profileSection}>
           <Image source={{ uri: user?.avatar || 'https://s3.amazonaws.com/uploads-dev-vtxapp-net/athletes/profile/dev_AT_vtx.com_2025_07_28_11_01_54.png' }} style={styles.avatar} />
           <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
-            <Text style={styles.profileName}>{user?.name ? user.name : t(lang, 'config', 'defaultUserName')}</Text>
+            <Text style={styles.profileName}>{user?.name ? user.name : t( 'config', 'defaultUserName')}</Text>
           </View>
-          <Text style={styles.profileEmail}>{user?.email ? user.email : t(lang, 'config', 'defaultUserEmail')}</Text>
+          <Text style={styles.profileEmail}>{user?.email ? user.email : t( 'config', 'defaultUserEmail')}</Text>
           {user?.matricula && (
             <Text style={[styles.profileEmail, { fontSize: 14}]}>Matrícula: {user.matricula}</Text>
           )}
@@ -274,12 +276,12 @@ const ConfigScreen = () => {
         </TouchableOpacity>
 
         {/* Settings Section */}
-        <Text style={styles.sectionTitle}>{t(lang, 'config', 'settingsTitle')}</Text>
+        <Text style={styles.sectionTitle}>{t( 'config', 'settingsTitle')}</Text>
         {/* Theme first (dropdown alineado) */}
         <View style={styles.sectionRow}>
           <View style={styles.iconCard}><Ionicons name="sunny-outline" size={28} color={colors.button} /></View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.sectionText}>{t(lang, 'config', 'theme')}</Text>
+            <Text style={styles.sectionText}>{t( 'config', 'theme')}</Text>
             <View style={{ position: 'relative' }}>
               <TouchableOpacity
                 style={styles.dropdownContainer}
@@ -298,7 +300,7 @@ const ConfigScreen = () => {
               >
                 <View style={styles.dropdownSelected}>
                   <Ionicons name={theme === 'dark' ? 'moon' : 'sunny'} size={22} color={colors.text} style={{ marginRight: 10 }} />
-                  <Text style={styles.dropdownText}>{t(lang, 'config', theme === 'dark' ? 'darkTheme' : 'lightTheme')}</Text>
+                  <Text style={styles.dropdownText}>{t( 'config', theme === 'dark' ? 'darkTheme' : 'lightTheme')}</Text>
                   <Ionicons name={showThemeDropdown ? 'chevron-up-outline' : 'chevron-down-outline'} size={20} color={colors.textSecondary} style={{ marginLeft: 8 }} />
                 </View>
               </TouchableOpacity>
@@ -318,7 +320,7 @@ const ConfigScreen = () => {
                         onPress={() => { setTheme('dark'); setShowThemeDropdown(false); }}
                       >
                         <Ionicons name="moon" size={22} color={colors.text} style={{ marginRight: 10 }} />
-                        <Text style={styles.dropdownText}>{t(lang, 'config', 'darkTheme')}</Text>
+                        <Text style={styles.dropdownText}>{t( 'config', 'darkTheme')}</Text>
                       </TouchableOpacity>
                       <TouchableOpacity
                         style={styles.dropdownItem}
@@ -326,7 +328,7 @@ const ConfigScreen = () => {
                         onPress={() => { setTheme('light'); setShowThemeDropdown(false); }}
                       >
                         <Ionicons name="sunny" size={22} color={colors.text} style={{ marginRight: 10 }} />
-                        <Text style={styles.dropdownText}>{t(lang, 'config', 'lightTheme')}</Text>
+                        <Text style={styles.dropdownText}>{t( 'config', 'lightTheme')}</Text>
                       </TouchableOpacity>
                     </View>
                   )}
@@ -339,7 +341,7 @@ const ConfigScreen = () => {
         <View style={styles.sectionRow}>
           <View style={styles.iconCard}><Ionicons name="globe-outline" size={28} color={colors.button} /></View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.sectionText}>{t(lang, 'config', 'language')}</Text>
+            <Text style={styles.sectionText}>{t( 'config', 'language')}</Text>
             <View style={{ position: 'relative' }}>
               <TouchableOpacity
                 style={styles.dropdownContainer}
@@ -349,7 +351,7 @@ const ConfigScreen = () => {
               >
                 <View style={styles.dropdownSelected}>
                   <Image source={lang === 'en' ? usFlag : mxFlag} style={styles.flagIcon} />
-                  <Text style={styles.dropdownText}>{t(lang, 'config', lang === 'en' ? 'english' : 'spanish')}</Text>
+                  <Text style={styles.dropdownText}>{t( 'config', lang === 'en' ? 'english' : 'spanish')}</Text>
                   <Ionicons name={showDropdown ? 'chevron-up-outline' : 'chevron-down-outline'} size={20} color={colors.textSecondary} style={{ marginLeft: 8 }} />
                 </View>
               </TouchableOpacity>
@@ -371,7 +373,7 @@ const ConfigScreen = () => {
                         onPress={() => { setLang('en'); setShowDropdown(false); }}
                       >
                         <Image source={usFlag} style={styles.flagIcon} />
-                        <Text style={styles.dropdownText}>{t(lang, 'config', 'english')}</Text>
+                        <Text style={styles.dropdownText}>{t( 'config', 'english')}</Text>
                       </TouchableOpacity>
                       <TouchableOpacity
                         style={styles.dropdownItem}
@@ -379,7 +381,7 @@ const ConfigScreen = () => {
                         onPress={() => { setLang('es'); setShowDropdown(false); }}
                       >
                         <Image source={mxFlag} style={styles.flagIcon} />
-                        <Text style={styles.dropdownText}>{t(lang, 'config', 'spanish')}</Text>
+                        <Text style={styles.dropdownText}>{t( 'config', 'spanish')}</Text>
                       </TouchableOpacity>
                     </Animated.View>
                   )}
@@ -397,7 +399,7 @@ const ConfigScreen = () => {
           onPress={async () => { await AsyncStorage.removeItem('@userSession'); setUser(null); }}
         >
           <Ionicons name="log-out-outline" size={22} color="#fff" style={{ marginRight: 8 }} />
-          <Text style={styles.logoutButtonTextModern}>{t(lang, 'config', 'logout')}</Text>
+          <Text style={styles.logoutButtonTextModern}>{t( 'config', 'logout')}</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

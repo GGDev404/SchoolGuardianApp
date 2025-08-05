@@ -1,17 +1,16 @@
 import { Calendar } from "react-native-calendars";
 
-export function t(lang: SupportedLang, section: string, key: string): string {
-  const dict = translations[lang] as any;
-  const dictEn = translations['en'] as any;
-  return (
-    dict?.[section]?.[key] ||
-    dictEn?.[section]?.[key] ||
-    key
-  );
-}
 export type SupportedLang = 'en' | 'es';
-// src/i18n.ts
-export const translations = {
+
+type SectionKeys = 'login' | 'signup' | 'config' | 'home' | 'calendar' | 'errors' | 'ble';
+type TranslationSection = Record<string, string>;
+type Translations = {
+  [lang in SupportedLang]: {
+    [section in SectionKeys]: TranslationSection;
+  };
+};
+
+export const translations: Translations = {
   en: {
     login: {
       title: 'School Guardian',
@@ -27,12 +26,21 @@ export const translations = {
     },
     signup: {
       title: 'Sign Up',
+      createAccount: 'Create Account',
       name: 'Name',
+      fullName: 'Full name',
       email: 'Email',
+      emailPlaceholder: 'email@example.com',
       password: 'Password',
+      passwordPlaceholder: 'Minimum 8 characters',
+      matricula: 'Student ID',
+      matriculaPlaceholder: 'Student ID number',
       register: 'Register',
       alreadyAccount: 'Already have an account?',
+      alreadyHaveAccount: 'Already have an account?',
       login: 'Login',
+      signIn: 'Sign In',
+      selectProfilePhoto: 'Select profile photo',
       errorRequired: 'All fields are required',
       success: 'Registration successful',
       userCreated: 'User created successfully',
@@ -76,6 +84,13 @@ export const translations = {
     errors: {
       error: 'Error',
     },
+    ble: {
+      initializingUUID: 'Initializing UUID',
+      newUUIDGenerated: 'New UUID generated',
+      uuidRecovered: 'UUID recovered',
+      errorInitializingUUID: 'Error initializing UUID',
+      errorInitializingDeviceID: 'Error initializing device ID',
+    },
   },
   es: {
     login: {
@@ -92,12 +107,21 @@ export const translations = {
     },
     signup: {
       title: 'Registro',
+      createAccount: 'Crear Cuenta',
       name: 'Nombre',
+      fullName: 'Nombre completo',
       email: 'Email',
+      emailPlaceholder: 'correo@ejemplo.com',
       password: 'Contraseña',
+      passwordPlaceholder: 'Mínimo 8 caracteres',
+      matricula: 'Matrícula',
+      matriculaPlaceholder: 'Número de matrícula',
       register: 'Registrarse',
       alreadyAccount: '¿Ya tienes cuenta?',
+      alreadyHaveAccount: '¿Ya tienes cuenta?',
       login: 'Iniciar sesión',
+      signIn: 'Inicia sesión',
+      selectProfilePhoto: 'Seleccionar foto de perfil',
       errorRequired: 'Todos los campos son obligatorios',
       success: 'Registro exitoso',
       userCreated: 'Usuario creado correctamente',
@@ -140,6 +164,13 @@ export const translations = {
     },
     errors: {
       error: 'Error',
+    },
+    ble: {
+      initializingUUID: 'Inicializando UUID',
+      newUUIDGenerated: 'Nuevo UUID generado',
+      uuidRecovered: 'UUID recuperado',
+      errorInitializingUUID: 'Error inicializando UUID',
+      errorInitializingDeviceID: 'Error inicializando ID de dispositivo',
     },
   },
 };

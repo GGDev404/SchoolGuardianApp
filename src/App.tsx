@@ -4,7 +4,7 @@ import * as React from 'react';
 import { StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-
+import { UserContext, ThemeContext } from './contexts/AppContexts';
 
 import HomeScreen from './screens/HomeScreen';
 import ClassDetailScreen from './screens/ClassDetailScreen';
@@ -15,27 +15,25 @@ import CalendarScreen from './screens/CalendarScreen';
 import NotificationsScreen from './screens/NotificationsScreen';
 import EditProfileScreen from './screens/EditProfileScreen';
 
-import { translations, t, SupportedLang } from './i18n';
-
+import { translations, SupportedLang } from './i18n';
+import { t } from './hooks/useTranslation';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRef } from 'react';
 
-
 const Stack = createStackNavigator();
-
-
-
-export const UserContext = React.createContext<{user: any, setUser: (u: any) => void, lang: SupportedLang, setLang: (l: SupportedLang) => void}>({user: null, setUser: () => {}, lang: 'en', setLang: () => {}});
-export const ThemeContext = React.createContext<{theme: string, setTheme: (t: string) => void}>({theme: 'dark', setTheme: () => {}});
 
 
 function App() {
   const [user, setUser] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
-  const [lang, setLang] = React.useState<SupportedLang>('en');
+  const [lang, setLangState] = React.useState<SupportedLang>('en');
   const [theme, setTheme] = React.useState('dark');
   const refreshTimeout = useRef<NodeJS.Timeout | null>(null);
+
+  const setLang = (newLang: string) => {
+    setLangState(newLang as SupportedLang);
+  };
 
   const safeTheme = theme === 'light' ? 'light' : 'dark';
   const colors = colorPalettes[safeTheme];
@@ -109,7 +107,7 @@ function App() {
                 <Stack.Screen name="Home" component={HomeScreen} options={{ title: t(lang, 'home', 'classes') }} />
                 <Stack.Screen name="Calendar" component={CalendarScreen} options={{ title: t(lang, 'calendar', 'title') }} />
                 <Stack.Screen name="Config" component={ConfigScreen} options={{ title: t(lang, 'config', 'title') }} />
-                <Stack.Screen name="ClassDetail" component={ClassDetailScreen} options={{ title: t(lang, 'classDetail', 'title') }} />
+                <Stack.Screen name="ClassDetail" component={ClassDetailScreen} options={{ title: t(lang, 'home', 'classes') }} />
                 <Stack.Screen name="Notifications" component={NotificationsScreen} options={{ title: 'Notificaciones' }} />
                 <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ title: 'Editar Perfil' }} />
               </>

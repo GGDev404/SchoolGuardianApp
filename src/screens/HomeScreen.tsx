@@ -1,11 +1,10 @@
 // Pantalla principal de la app
 import React, { useEffect, useState, useContext, useCallback } from 'react';
-import { t } from '../i18n';
 import { Text, View, StyleSheet, ScrollView, Image, TouchableOpacity, Platform, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import PushNotification from 'react-native-push-notification';
 import { colorPalettes } from '../theme/colors';
-import { ThemeContext, UserContext } from '../App';
+import { ThemeContext, UserContext } from '../contexts/AppContexts';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
@@ -13,8 +12,10 @@ import Header from '../components/Header';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import BottomBar from '../components/BottomBar';
 import ClassCard from '../components/ClassCard';
+import { useTranslation } from '../hooks/useTranslation';
 import { initializeDeviceUUID, checkBluetoothState, enableBluetooth, requestPermissions, startAdvertising, stopAdvertising } from '../services/bleService';
 import CalendarScreen from './CalendarScreen';
+
 
 
 function makeStyles(colors: typeof colorPalettes['dark']) {
@@ -140,6 +141,7 @@ const HomeScreen = () => {
   // Contextos y hooks
   const { theme } = useContext(ThemeContext);
   const { lang, user, setUser } = useContext(UserContext);
+  const { t } = useTranslation();
   const navigation = useNavigation<any>();
   
   // Estados principales
@@ -464,68 +466,68 @@ const HomeScreen = () => {
 
   // Estado del badge de advertising
   let advertisingBadgeColor = colors.error;
-  let advertisingBadgeText = t(lang, 'home', 'advertising');
+  let advertisingBadgeText = t('home', 'advertising');
   const normalizedState = (bluetoothState || '').toLowerCase();
   if (normalizedState === 'poweredon') {
     if (isAdvertising) {
       advertisingBadgeColor = colors.success;
-      advertisingBadgeText = t(lang, 'home', 'advertising');
+      advertisingBadgeText = t('home', 'advertising');
     } else {
       advertisingBadgeColor = advertisingError ? colors.error : colors.button;
-      advertisingBadgeText = advertisingError ? advertisingError : t(lang, 'home', 'startAdvertising');
+      advertisingBadgeText = advertisingError ? advertisingError : t('home', 'startAdvertising');
     }
   } else {
     advertisingBadgeColor = colors.warning;
-    advertisingBadgeText = `${t(lang, 'home', 'bluetoothOff')} (${bluetoothState})`;
+    advertisingBadgeText = `${t('home', 'bluetoothOff')} (${bluetoothState})`;
   }
 
   // Lista de clases simuladas
   const classes = [
     {
-      name: t(lang, 'home', 'Programing'),
-      room: t(lang, 'home', 'room208'),
+      name: t('home', 'Programing'),
+      room: t('home', 'room208'),
       time: '8:30 PM - 10:00 PM',
       image: 'https://images.unsplash.com/photo-1544256718-3bcf237f3974?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     },
     {
-      name: t(lang, 'home', 'mathematics'),
-      room: t(lang, 'home', 'room201'),
+      name: t('home', 'mathematics'),
+      room: t('home', 'room201'),
       time: '8:00 AM - 9:30 AM',
       image: 'https://images.unsplash.com/photo-1676302447092-14a103558511?q=80&w=1035&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     },
     {
-      name: t(lang, 'home', 'science'),
-      room: t(lang, 'home', 'room202'),
+      name: t('home', 'science'),
+      room: t('home', 'room202'),
       time: '10:00 AM - 11:30 AM',
       image: 'https://images.unsplash.com/photo-1581093577421-f561a654a353?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     },
     {
-      name: t(lang, 'home', 'history'),
-      room: t(lang, 'home', 'room203'),
+      name: t('home', 'history'),
+      room: t('home', 'room203'),
       time: '11:45 AM - 1:15 PM',
       image: 'https://plus.unsplash.com/premium_photo-1661963952208-2db3512ef3de?q=80&w=2144&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     },
     {
-      name: t(lang, 'home', 'art'),
-      room: t(lang, 'home', 'room204'),
+      name: t('home', 'art'),
+      room: t('home', 'room204'),
       time: '1:30 PM - 3:00 PM',
       image: 'https://images.unsplash.com/flagged/photo-1572392640988-ba48d1a74457?q=80&w=1064&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     },
     {
-      name: t(lang, 'home', 'music'),
-      room: t(lang, 'home', 'room205'),
+      name: t('home', 'music'),
+      room: t('home', 'room205'),
       time: '3:15 PM - 4:45 PM',
       image: 'https://images.unsplash.com/photo-1481886756534-97af88ccb438?q=80&w=2832&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     },
     {
-      name: t(lang, 'home', 'english'),
-      room: t(lang, 'home', 'room206'),
+      name: t('home', 'english'),
+      room: t('home', 'room206'),
       time: '5:00 PM - 6:30 PM',
       image: 'https://images.unsplash.com/photo-1650848200302-22e62d26a75a?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     },
     {
-      name: t(lang, 'home', 'sports'),
-      room: t(lang, 'home', 'room207'),
+      name: t('home', 'sports'),
+      room: t('home', 'room207'),
       time: '6:45 PM - 8:15 PM',
       image: 'https://images.unsplash.com/photo-1488424138610-252b5576e079?q=80&w=2012&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     },
@@ -589,10 +591,16 @@ const HomeScreen = () => {
       </View>
 
       {activeTab === 'home' ? (
+        
         <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 0 }} style={{ flex: 1 }}>
+          <View>
+            <Text>
+              Add Class
+            </Text>
+          </View>
           <View style={styles.cardRow}>
             <Text style={styles.sectionTitle}>
-              {t(lang, 'home', 'todaysClasses')}
+              {t('home', 'todaysClasses')}
             </Text>
             {classes.map((classInfo, idx) => (
               <TouchableOpacity key={idx} style={styles.classCard} onPress={() => handleClassPress(classInfo)}>
