@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "BLEAdvertiserApp.app"
-               BlueprintName = "BLEAdvertiserApp"
-               ReferencedContainer = "container:BLEAdvertiserApp.xcodeproj">
+               BuildableName = "SchoolGuardian.app"
+               BlueprintName = "SchoolGuardian"
+               ReferencedContainer = "container:SchoolGuardian.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "BLEAdvertiserAppTests.xctest"
-               BlueprintName = "BLEAdvertiserAppTests"
-               ReferencedContainer = "container:BLEAdvertiserApp.xcodeproj">
+               BuildableName = "SchoolGuardianTests.xctest"
+               BlueprintName = "SchoolGuardianTests"
+               ReferencedContainer = "container:SchoolGuardian.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "BLEAdvertiserApp.app"
-            BlueprintName = "BLEAdvertiserApp"
-            ReferencedContainer = "container:BLEAdvertiserApp.xcodeproj">
+            BuildableName = "SchoolGuardian.app"
+            BlueprintName = "SchoolGuardian"
+            ReferencedContainer = "container:SchoolGuardian.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "BLEAdvertiserApp.app"
-            BlueprintName = "BLEAdvertiserApp"
-            ReferencedContainer = "container:BLEAdvertiserApp.xcodeproj">
+            BuildableName = "SchoolGuardian.app"
+            BlueprintName = "SchoolGuardian"
+            ReferencedContainer = "container:SchoolGuardian.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

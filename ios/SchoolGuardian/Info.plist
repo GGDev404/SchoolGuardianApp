@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>BLEAdvertiserApp</string>
+	<string>SchoolGuardian</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -33,7 +33,7 @@
 		<true/>
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string/>
 	<key>NSCameraUsageDescription</key>
 	<string>Esta aplicación necesita acceso a la cámara para tomar fotos de perfil</string>
 	<key>NSPhotoLibraryUsageDescription</key>
