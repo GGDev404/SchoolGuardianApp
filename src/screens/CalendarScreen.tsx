@@ -38,14 +38,12 @@ const getMarkedDates = (colors: any): Record<string, any> => {
   return marked;
 };
 
-const {t} =useTranslation();
-
-
 const CalendarScreen = () => {
   const [selectedDate, setSelectedDate] = useState('');
   const { theme } = useContext(ThemeContext);
   const colors = colorPalettes[theme as 'dark' | 'light'] || colorPalettes.dark;
   const { setUser, lang } = useContext(UserContext);
+  const { t } = useTranslation();
 
   const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },

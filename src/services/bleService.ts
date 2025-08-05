@@ -4,28 +4,27 @@ import uuid from 'react-native-uuid';
 import { BleManager } from 'react-native-ble-plx';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert, PermissionsAndroid, Platform } from 'react-native';
-import { UserContext } from '../contexts/AppContexts';
-import { t } from '../hooks/useTranslation';
+import { getTranslation } from '../hooks/useTranslation';
 
 const bleManager = new BleManager();
 
 export async function initializeDeviceUUID(addLog: (msg: string) => void, setDeviceUUID: (uuid: string) => void, setIsInitialized: (v: boolean) => void) {
   try {
-    addLog(t('es', 'ble', 'initializingUUID'));
+    addLog(getTranslation('es', 'ble', 'initializingUUID'));
     let storedUUID = await AsyncStorage.getItem('@deviceUUID');
     if (!storedUUID) {
       // Generar UUID completo con formato estándar (con guiones)
       storedUUID = uuid.v4() as string;
       await AsyncStorage.setItem('@deviceUUID', storedUUID);
-      addLog(t('es', 'ble', 'newUUIDGenerated') + `: ${storedUUID}`);
+      addLog(getTranslation('es', 'ble', 'newUUIDGenerated') + `: ${storedUUID}`);
     } else {
-      addLog(t('es', 'ble', 'uuidRecovered') + `: ${storedUUID}`);
+      addLog(getTranslation('es', 'ble', 'uuidRecovered') + `: ${storedUUID}`);
     }
     setDeviceUUID(storedUUID);
     setIsInitialized(true);
   } catch (err: any) {
-    addLog(t('es', 'ble', 'errorInitializingUUID') + `: ${err.message}`);
-    Alert.alert(t('es', 'errors', 'error'), t('es', 'ble', 'errorInitializingDeviceID'));
+    addLog(getTranslation('es', 'ble', 'errorInitializingUUID') + `: ${err.message}`);
+    Alert.alert(getTranslation('es', 'errors', 'error'), getTranslation('es', 'ble', 'errorInitializingDeviceID'));
   }
 }
 

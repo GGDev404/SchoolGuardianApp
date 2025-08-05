@@ -16,24 +16,20 @@ import NotificationsScreen from './screens/NotificationsScreen';
 import EditProfileScreen from './screens/EditProfileScreen';
 
 import { translations, SupportedLang } from './i18n';
-import { t } from './hooks/useTranslation';
+import { getTranslation } from './hooks/useTranslation';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRef } from 'react';
+import { useRef, useContext } from 'react';
 
 const Stack = createStackNavigator();
 
-
 function App() {
-  const [user, setUser] = React.useState<any>(null);
+  // Usar contextos en lugar de estado local
+  const { user, setUser, lang, setLang } = useContext(UserContext);
+  const { theme, setTheme } = useContext(ThemeContext);
+  
   const [loading, setLoading] = React.useState(true);
-  const [lang, setLangState] = React.useState<SupportedLang>('en');
-  const [theme, setTheme] = React.useState('dark');
   const refreshTimeout = useRef<NodeJS.Timeout | null>(null);
-
-  const setLang = (newLang: string) => {
-    setLangState(newLang as SupportedLang);
-  };
 
   const safeTheme = theme === 'light' ? 'light' : 'dark';
   const colors = colorPalettes[safeTheme];
@@ -54,10 +50,6 @@ function App() {
             setUser(null);
           } else {
             setUser(userData);
-            // Si el token expira en menos de 5 minutos, refresca
-            // if (userData.token && userData.expiry && userData.expiry - Date.now() < 5 * 60 * 1000) {
-            //   refreshToken(userData.token);
-            // }
           }
         } catch {
           setUser(null);
@@ -68,16 +60,13 @@ function App() {
       setLoading(false);
     });
     return () => { isMounted = false; };
-  }, []);
+  }, [setUser]);
 
   // Intervalo para refrescar token si el usuario está en la app
   React.useEffect(() => {
     if (!user || !user.token || !user.expiry) return;
     if (refreshTimeout.current) clearInterval(refreshTimeout.current);
     refreshTimeout.current = setInterval(() => {
-      // if (user.expiry - Date.now() < 5 * 60 * 1000 && user.expiry - Date.now() > 0) {
-      //   refreshToken(user.token);
-      // }
       if (user.expiry && Date.now() > Number(user.expiry)) {
         AsyncStorage.removeItem('@userSession');
         setUser(null);
@@ -86,41 +75,39 @@ function App() {
     return () => {
       if (refreshTimeout.current) clearInterval(refreshTimeout.current);
     };
-  }, [user]);
+  }, [user, setUser]);
 
   if (loading) return null;
 
   return (
-    <UserContext.Provider value={{ user, setUser, lang, setLang }}>
-      <ThemeContext.Provider value={{ theme, setTheme }}>
-        <StatusBar
-          barStyle={theme === 'dark' ? 'light-content' : 'dark-content'}
-          backgroundColor={colors.background}
-        />
-        <NavigationContainer>
-          <Stack.Navigator
-            initialRouteName={user ? 'Home' : 'Login'}
-            screenOptions={{ headerShown: false }}
-          >
-            {user ? (
-              <>
-                <Stack.Screen name="Home" component={HomeScreen} options={{ title: t(lang, 'home', 'classes') }} />
-                <Stack.Screen name="Calendar" component={CalendarScreen} options={{ title: t(lang, 'calendar', 'title') }} />
-                <Stack.Screen name="Config" component={ConfigScreen} options={{ title: t(lang, 'config', 'title') }} />
-                <Stack.Screen name="ClassDetail" component={ClassDetailScreen} options={{ title: t(lang, 'home', 'classes') }} />
-                <Stack.Screen name="Notifications" component={NotificationsScreen} options={{ title: 'Notificaciones' }} />
-                <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ title: 'Editar Perfil' }} />
-              </>
-            ) : (
-              <>
-                <Stack.Screen name="Login" component={LoginScreen} options={{ title: t(lang, 'login', 'title') }} />
-                <Stack.Screen name="SignUp" component={SignUpScreen} options={{ title: t(lang, 'signup', 'title') }} />
-              </>
-            )}
-          </Stack.Navigator>
-        </NavigationContainer>
-      </ThemeContext.Provider>
-    </UserContext.Provider>
+    <>
+      <StatusBar
+        barStyle={theme === 'dark' ? 'light-content' : 'dark-content'}
+        backgroundColor={colors.background}
+      />
+      <NavigationContainer>
+        <Stack.Navigator
+          initialRouteName={user ? 'Home' : 'Login'}
+          screenOptions={{ headerShown: false }}
+        >
+          {user ? (
+            <>
+              <Stack.Screen name="Home" component={HomeScreen} options={{ title: getTranslation(lang, 'home', 'todaysClasses') }} />
+              <Stack.Screen name="Calendar" component={CalendarScreen} options={{ title: getTranslation(lang, 'calendar', 'title') }} />
+              <Stack.Screen name="Config" component={ConfigScreen} options={{ title: getTranslation(lang, 'config', 'title') }} />
+              <Stack.Screen name="ClassDetail" component={ClassDetailScreen} options={{ title: getTranslation(lang, 'home', 'todaysClasses') }} />
+              <Stack.Screen name="Notifications" component={NotificationsScreen} options={{ title: 'Notificaciones' }} />
+              <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ title: 'Editar Perfil' }} />
+            </>
+          ) : (
+            <>
+              <Stack.Screen name="Login" component={LoginScreen} options={{ title: getTranslation(lang, 'login', 'title') }} />
+              <Stack.Screen name="SignUp" component={SignUpScreen} options={{ title: getTranslation(lang, 'signup', 'title') }} />
+            </>
+          )}
+        </Stack.Navigator>
+      </NavigationContainer>
+    </>
   );
 }
 

@@ -18,7 +18,3 @@ export const getTranslation = (lang: SupportedLang, section: keyof typeof transl
   return translations[lang]?.[section]?.[key] || translations.en[section]?.[key] || key;
 };
 
-// Función temporal para mantener compatibilidad con el código existente
-export const t = (lang: SupportedLang, section: keyof typeof translations.en, key: string): string => {
-  return translations[lang]?.[section]?.[key] || translations.en[section]?.[key] || key;
-};
