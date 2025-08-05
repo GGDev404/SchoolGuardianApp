@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, TextInput, StyleSheet, Alert, TouchableOpacity, Image, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, Alert, TouchableOpacity, Image, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { launchImageLibrary } from 'react-native-image-picker';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { colorPalettes } from '../theme/colors';
 import { ThemeContext, UserContext } from '../contexts/AppContexts';
 import CustomButton from '../components/CustomButton';
 import { signUp } from '../services/authService';
 import { initializeDeviceUUID } from '../services/bleService';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useTranslation } from '../hooks/useTranslation';
+import { useScreenStyles } from '../hooks/useStyles';
 
 type RootStackParamList = {
   Home: undefined;
@@ -17,64 +17,12 @@ type RootStackParamList = {
   Login: undefined;
 };
 
-const makeStyles = (colors: typeof colorPalettes['dark']) => StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    paddingTop: 50,
-    backgroundColor: colors.background,
-  },
-  input: {
-    backgroundColor: colors.input,
-    color: colors.inputText,
-    borderWidth: 1,
-    borderColor: colors.border,
-    marginBottom: 12,
-    padding: 16,
-    borderRadius: 12,
-    fontSize: 16,
-  },
-  title: {
-    color: colors.text,
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  uuidText: {
-    color: colors.textSecondary,
-    marginBottom: 15,
-    fontSize: 12,
-  },
-  buttonContainer: {
-    marginVertical: 10,
-  },
-  errorText: {
-    color: colors.error,
-    marginTop: 5,
-    fontSize: 12,
-  },
-  successText: {
-    color: colors.success,
-    marginTop: 10,
-    fontWeight: 'bold',
-    fontSize: 16,
-    textAlign: 'center',
-  },
-  infoText: {
-    color: colors.textSecondary,
-    marginTop: 20,
-    fontSize: 12,
-  },
-});
-
 const SignUpScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { theme } = useContext(ThemeContext);
   const { lang, setUser } = useContext(UserContext);
   const { t } = useTranslation();
-  const colors = colorPalettes[theme as 'dark' | 'light'] || colorPalettes.dark;
-  const styles = makeStyles(colors);
+  const { colors, styles, common } = useScreenStyles('auth');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -369,11 +317,11 @@ const SignUpScreen = () => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', padding: 18, borderBottomWidth: 1, borderBottomColor: colors.card }}>
+      <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.navigate('Login')} style={{ marginRight: 12 }}>
           <Ionicons name="arrow-back" size={26} color={colors.text} />
         </TouchableOpacity>
-        <Text style={{ color: colors.text, fontWeight: 'bold', fontSize: 22 }}>{t('signup', 'createAccount')}</Text>
+        <Text style={styles.title}>{t('signup', 'createAccount')}</Text>
       </View>
 
       <ScrollView contentContainerStyle={{ padding: 24 }}>
@@ -383,12 +331,7 @@ const SignUpScreen = () => {
             <View style={{ position: 'relative' }}>
               <Image
                 source={{ uri: imageUri || 'https://via.placeholder.com/120' }}
-                style={{
-                  width: 120,
-                  height: 120,
-                  borderRadius: 60,
-                  backgroundColor: colors.card,
-                }}
+                style={common.avatar}
               />
               <View style={{
                 position: 'absolute',
@@ -405,26 +348,17 @@ const SignUpScreen = () => {
               </View>
             </View>
           </TouchableOpacity>
-          <Text style={{ color: colors.textSecondary, fontSize: 14, marginTop: 8 }}>
+          <Text style={common.subtitle}>
             {t('signup', 'selectProfilePhoto')}
           </Text>
         </View>
 
         {/* Formulario */}
-        <View style={{ gap: 20 }}>
+        <View style={styles.formSection}>
           {/* Mostrar UUID del dispositivo para debug */}
           {deviceUUID && (
-            <View style={{ 
-              backgroundColor: colors.card, 
-              padding: 12, 
-              borderRadius: 8, 
-              marginBottom: 10 
-            }}>
-              <Text style={{ 
-                color: colors.textSecondary, 
-                fontSize: 12, 
-                fontWeight: '600' 
-              }}>
+            <View style={common.card}>
+              <Text style={common.label}>
                 UUID del Dispositivo:
               </Text>
               <Text style={{ 
@@ -438,7 +372,7 @@ const SignUpScreen = () => {
           )}
 
           <View>
-            <Text style={{ color: colors.text, fontSize: 16, fontWeight: '600', marginBottom: 8 }}>
+            <Text style={styles.label}>
               {t('signup', 'name')} *
             </Text>
             <TextInput
@@ -451,7 +385,7 @@ const SignUpScreen = () => {
           </View>
 
           <View>
-            <Text style={{ color: colors.text, fontSize: 16, fontWeight: '600', marginBottom: 8 }}>
+            <Text style={styles.label}>
               {t('signup', 'email')} *
             </Text>
             <TextInput

@@ -1,57 +1,14 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Alert, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
+import React, { useState, useContext } from 'react';
+import { View, Text, TextInput, Alert, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colorPalettes } from '../theme/colors';
-import { ThemeContext } from '../contexts/AppContexts';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import CustomButton from '../components/CustomButton';
-
-const makeStyles = (colors: typeof colorPalettes['dark']) => StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    paddingTop: 50,
-    backgroundColor: colors.background,
-  },
-  input: {
-    backgroundColor: colors.input,
-    color: colors.inputText,
-    borderWidth: 1,
-    borderColor: colors.border,
-    marginBottom: 12,
-    marginTop: 20,
-    padding: 12,
-    borderRadius: 8,
-    fontSize: 16,
-  },
-  label: {
-    color: colors.text,
-    fontSize: 16,
-    marginBottom: 6,
-  },
-  button: {
-    backgroundColor: colors.button,
-    borderRadius: 30,
-    paddingVertical: 14,
-    marginTop: 10,
-  },
-  buttonText: {
-    color: colors.buttonText,
-    fontWeight: 'bold',
-    fontSize: 16,
-    textAlign: 'center',
-  },
-  infoText: {
-    color: colors.textSecondary,
-    marginTop: 20,
-    fontSize: 12,
-  },
-});
-
-
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useScreenStyles } from '../hooks/useStyles';
+import { UserContext } from '../contexts/AppContexts';
+import { useTranslation } from '../hooks/useTranslation';
 import { login } from '../services/loginService';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import CustomButton from '../components/CustomButton';
 
 type RootStackParamList = {
   Home: undefined;
@@ -59,14 +16,8 @@ type RootStackParamList = {
   Login: undefined;
 };
 
-import { useContext } from 'react';
-import { UserContext } from '../contexts/AppContexts';
-import { useTranslation } from '../hooks/useTranslation';
-
 const LoginScreen = () => {
-  const { theme } = useContext(ThemeContext);
-  const colors = colorPalettes[theme as 'dark' | 'light'] || colorPalettes.dark;
-  const styles = makeStyles(colors);
+  const { colors, styles, common } = useScreenStyles('auth');
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { setUser, lang } = useContext(UserContext);
   const [email, setEmail] = useState('');
@@ -208,49 +159,26 @@ const LoginScreen = () => {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <View style={{ flex: 1, padding: 24, justifyContent: 'center' }}>
+        <View style={styles.authContainer}>
           {/* Título */}
-          <View style={{ alignItems: 'center', marginBottom: 40 }}>
+          <View style={styles.logoSection}>
             <Ionicons name="school" size={60} color={colors.button} style={{ marginBottom: 16 }} />
-            <Text style={{ 
-              color: colors.text, 
-              fontSize: 32, 
-              fontWeight: 'bold', 
-              textAlign: 'center',
-              marginBottom: 8
-            }}>
+            <Text style={styles.title}>
               {t( 'login', 'title')}
             </Text>
-            <Text style={{ 
-              color: colors.textSecondary, 
-              fontSize: 16, 
-              textAlign: 'center' 
-            }}>
+            <Text style={styles.subtitle}>
               Ingresa a tu cuenta de estudiante
             </Text>
           </View>
 
           {/* Formulario */}
-          <View style={{ gap: 20 }}>
+          <View style={styles.formSection}>
             <View>
-              <Text style={{ 
-                color: colors.text, 
-                fontSize: 16, 
-                fontWeight: '600', 
-                marginBottom: 8 
-              }}>
+              <Text style={styles.label}>
                 Email
               </Text>
               <TextInput
-                style={{
-                  backgroundColor: colors.input,
-                  borderRadius: 12,
-                  padding: 16,
-                  color: colors.text,
-                  fontSize: 16,
-                  borderWidth: 1,
-                  borderColor: colors.border,
-                }}
+                style={styles.input}
                 placeholder="correo@ejemplo.com"
                 placeholderTextColor={colors.textSecondary}
                 value={email}
@@ -262,24 +190,11 @@ const LoginScreen = () => {
             </View>
 
             <View>
-              <Text style={{ 
-                color: colors.text, 
-                fontSize: 16, 
-                fontWeight: '600', 
-                marginBottom: 8 
-              }}>
+              <Text style={styles.label}>
                 Contraseña
               </Text>
               <TextInput
-                style={{
-                  backgroundColor: colors.input,
-                  borderRadius: 12,
-                  padding: 16,
-                  color: colors.text,
-                  fontSize: 16,
-                  borderWidth: 1,
-                  borderColor: colors.border,
-                }}
+                style={styles.input}
                 placeholder="Ingresa tu contraseña"
                 placeholderTextColor={colors.textSecondary}
                 value={password}
@@ -294,23 +209,17 @@ const LoginScreen = () => {
           <TouchableOpacity
             onPress={handleLogin}
             disabled={loading || !email.trim() || !password.trim()}
-            style={{
-              backgroundColor: colors.button,
-              borderRadius: 16,
-              padding: 18,
-              alignItems: 'center',
-              marginTop: 32,
-              opacity: (loading || !email.trim() || !password.trim()) ? 0.7 : 1,
-              flexDirection: 'row',
-              justifyContent: 'center',
-            }}
+            style={[
+              styles.loginButton,
+              { opacity: (loading || !email.trim() || !password.trim()) ? 0.7 : 1 }
+            ]}
           >
             {loading ? (
               <ActivityIndicator color="#fff" size="small" />
             ) : (
               <>
                 <Ionicons name="log-in-outline" size={22} color="#fff" style={{ marginRight: 8 }} />
-                <Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold' }}>
+                <Text style={styles.buttonText}>
                   Iniciar Sesión
                 </Text>
               </>
@@ -318,7 +227,7 @@ const LoginScreen = () => {
           </TouchableOpacity>
 
           {/* Enlaces adicionales */}
-          <View style={{ alignItems: 'center', marginTop: 24, gap: 16 }}>
+          <View style={styles.authLinks}>
             <TouchableOpacity>
               <Text style={{ 
                 color: colors.button, 
@@ -337,12 +246,7 @@ const LoginScreen = () => {
           </View>
 
           {/* Información adicional */}
-          <View style={{ 
-            backgroundColor: colors.card, 
-            borderRadius: 12, 
-            padding: 16, 
-            marginTop: 24 
-          }}>
+          <View style={styles.infoCard}>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
               <Ionicons name="information-circle" size={20} color={colors.button} style={{ marginRight: 8 }} />
               <Text style={{ color: colors.text, fontSize: 14, fontWeight: '600' }}>
@@ -357,13 +261,7 @@ const LoginScreen = () => {
           </View>
 
           {loading && (
-            <View style={{ 
-              backgroundColor: colors.card, 
-              borderRadius: 12, 
-              padding: 16, 
-              marginTop: 16,
-              alignItems: 'center'
-            }}>
+            <View style={[styles.infoCard, { marginTop: 16 }]}>
               <Text style={{ color: colors.text, fontSize: 14, textAlign: 'center' }}>
                 Verificando credenciales...
               </Text>
@@ -376,6 +274,6 @@ const LoginScreen = () => {
       </ScrollView>
     </SafeAreaView>
   );
-};
+}
 
 export default LoginScreen;

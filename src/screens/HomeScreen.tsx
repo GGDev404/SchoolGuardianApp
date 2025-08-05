@@ -1,9 +1,8 @@
 // Pantalla principal de la app
 import React, { useEffect, useState, useContext, useCallback } from 'react';
-import { Text, View, StyleSheet, ScrollView, Image, TouchableOpacity, Platform, Alert } from 'react-native';
+import { Text, View, ScrollView, Image, TouchableOpacity, Platform, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import PushNotification from 'react-native-push-notification';
-import { colorPalettes } from '../theme/colors';
 import { ThemeContext, UserContext } from '../contexts/AppContexts';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -15,124 +14,7 @@ import ClassCard from '../components/ClassCard';
 import { useTranslation } from '../hooks/useTranslation';
 import { initializeDeviceUUID, checkBluetoothState, enableBluetooth, requestPermissions, startAdvertising, stopAdvertising } from '../services/bleService';
 import CalendarScreen from './CalendarScreen';
-
-
-
-function makeStyles(colors: typeof colorPalettes['dark']) {
-  return StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-      paddingHorizontal: 0,
-      paddingTop: 20,
-      paddingBottom: 20,
-    },
-    header: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginTop: 60,
-      padding: 40,
-      justifyContent: 'space-between',
-    },
-    avatar: {
-      width: 40,
-      height: 40,
-      borderRadius: 20,
-      backgroundColor: colors.card,
-    },
-    advertisingBadge: {
-      borderRadius: 12,
-      paddingHorizontal: 12,
-      paddingVertical: 4,
-      marginLeft: 10,
-    },
-    advertisingText: {
-      color: colors.buttonText,
-      fontWeight: 'bold',
-      fontSize: 14,
-    },
-    icon: {
-      marginLeft: 10,
-    },
-    sectionTitle: {
-      color: colors.text,
-      fontWeight: 'bold',
-      fontSize: 22,
-      marginTop: 20,
-      marginBottom: 10,
-      marginLeft: 20,
-    },
-    cardRow: {
-      flexDirection: 'column',
-      marginHorizontal: 12,
-      marginBottom: 20,
-    },
-    classCard: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      backgroundColor: colors.card,
-      borderRadius: 16,
-      padding: 16,
-      marginBottom: 16,
-      width: '97%',
-      alignSelf: 'center',
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.10,
-      shadowRadius: 4,
-      elevation: 2,
-    },
-    classImage: {
-      width: 54,
-      height: 54,
-      borderRadius: 12,
-      marginRight: 16,
-      backgroundColor: colors.background,
-    },
-    classInfo: {
-      flex: 1,
-      flexDirection: 'column',
-      justifyContent: 'center',
-    },
-    classTitle: {
-      color: colors.text,
-      fontWeight: 'bold',
-      fontSize: 17,
-      marginBottom: 2,
-    },
-    classSubtitle: {
-      color: colors.textSecondary,
-      fontSize: 15,
-    },
-    announcementCard: {
-      backgroundColor: colors.card,
-      borderRadius: 16,
-      marginHorizontal: 20,
-      marginTop: 10,
-      padding: 16,
-    },
-    announcementTitle: {
-      color: colors.text,
-      fontWeight: 'bold',
-      fontSize: 16,
-      marginBottom: 4,
-    },
-    announcementText: {
-      color: colors.textSecondary,
-      fontSize: 16,
-    },
-    bottomBar: {
-      flexDirection: 'row',
-      justifyContent: 'space-around',
-      alignItems: 'center',
-      backgroundColor: colors.card,
-      paddingVertical: 12,
-      borderTopLeftRadius: 16,
-      borderTopRightRadius: 16,
-      paddingBottom: Platform.OS === 'android' ? 24 : 0,
-    },
-  });
-}
+import { useScreenStyles } from '../hooks/useStyles';
 
 
 
@@ -143,6 +25,7 @@ const HomeScreen = () => {
   const { lang, user, setUser } = useContext(UserContext);
   const { t } = useTranslation();
   const navigation = useNavigation<any>();
+  const { colors, styles, common } = useScreenStyles('home');
   
   // Estados principales
   const [isAdvertising, setIsAdvertising] = useState(false);
@@ -158,10 +41,6 @@ const HomeScreen = () => {
   // Estado para las notificaciones ya vistas (persiste en AsyncStorage)
   const [viewedNotifications, setViewedNotifications] = useState<Set<string>>(new Set());
   
-  // Colores y estilos
-  const colors = colorPalettes[theme as 'dark' | 'light'] || colorPalettes.dark;
-  const styles = makeStyles(colors);
-
   // Funciones para manejar notificaciones vistas
   const loadViewedNotifications = async () => {
     try {
@@ -356,34 +235,7 @@ const HomeScreen = () => {
       ws.close();
     };
   }, [addNotification, user?.id]);
-  // Configuración de idioma para el calendario
-  LocaleConfig.locales['es'] = {
-    monthNames: ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
-    monthNamesShort: ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],
-    dayNames: ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'],
-    dayNamesShort: ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'],
-  };
-  LocaleConfig.defaultLocale = 'es';
-
-  // Ejemplo de clases y asistencias para el calendario
-  type ClassEvent = { name: string; time: string; attended: boolean };
-  type ClassEventsMap = Record<string, ClassEvent[]>;
-  const classEvents: ClassEventsMap = {
-    '2025-07-30': [{ name: 'Mathematics', time: '8:00-9:30', attended: true }],
-    '2025-07-31': [{ name: 'Science', time: '10:00-11:30', attended: false }],
-    '2025-08-01': [{ name: 'Art', time: '12:00-13:30', attended: true }],
-  };
-
-  const getMarkedDates = (colors: any): Record<string, any> => {
-    const marked: Record<string, any> = {};
-    Object.keys(classEvents).forEach((date: string) => {
-      marked[date] = {
-        marked: true,
-        dotColor: classEvents[date].some((e: ClassEvent) => !e.attended) ? colors.error : colors.success,
-      };
-    });
-    return marked;
-  };
+ 
 
   // Inicializa UUID y BLE state usando solo la instancia global del servicio
   // Controla el intervalo de estado BLE para evitar bucles
@@ -406,10 +258,6 @@ const HomeScreen = () => {
       clearInterval(interval);
     };
   }, []);
-
-  // Funciones de navegación inferior
-  const handleNavigateHome = () => navigation.navigate('Home');
-  const handleNavigateCalendar = () => navigation.navigate('Calendar');
 
   // Funciones de advertising
   const handleStartAdvertising = async (force = false) => {
@@ -540,58 +388,25 @@ const HomeScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={["left", "right", "bottom"]}>
+    <SafeAreaView style={common.container} edges={["left", "right", "bottom"]}>
       {/* Header horizontal con icono de notificaciones */}
-      <View style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 20,
-        paddingTop: 30, 
-        paddingBottom: 20,
-        borderBottomWidth: 1,
-        borderBottomColor: colors.card,
-        backgroundColor: colors.background,
-      }}>
-        <TouchableOpacity onPress={() => navigation.navigate('Config')}>
-          <Image source={{ uri: user?.avatar || 'https://s3.amazonaws.com/uploads-dev-vtxapp-net/athletes/profile/dev_AT_vtx.com_2025_07_28_11_01_54.png' }} style={styles.avatar} />
-        </TouchableOpacity>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          {activeTab === 'home' ? (
-            <TouchableOpacity
-              style={[styles.advertisingBadge, { backgroundColor: advertisingBadgeColor }]} 
-              onPress={bluetoothState === 'PoweredOn'
-                ? (isAdvertising
-                    ? () => handleStopAdvertising()
-                    : () => handleStartAdvertising(false))
-                : undefined}
-            >
-              <Text style={styles.advertisingText}>{advertisingBadgeText}</Text>
-            </TouchableOpacity>
-          ) : (
-            <Ionicons name="calendar-outline" size={28} color={colors.button} />
-          )}
-          {/* Icono de notificaciones con badge si hay nuevas */}
-          <TouchableOpacity
-            onPress={() => {
-              markNotificationsAsViewed();
-              navigation.navigate('Notifications', { notifications: wsNotifications });
-            }}
-            style={{ marginLeft: 18 }}>
-            <View>
-              <Ionicons name="notifications-outline" size={28} color={colors.button} />
-              {unviewedCount > 0 && (
-                <View style={{ position: 'absolute', top: -2, right: -2, backgroundColor: colors.error, borderRadius: 8, width: 16, height: 16, justifyContent: 'center', alignItems: 'center' }}>
-                  <Text style={{ color: '#fff', fontSize: 10, fontWeight: 'bold' }}>{unviewedCount}</Text>
-                </View>
-              )}
-            </View>
-          </TouchableOpacity>
-        </View>
-      </View>
+      <Header
+        onAvatarPress={() => navigation.navigate('Config')}
+        activeTab={activeTab}
+        advertisingBadgeColor={advertisingBadgeColor}
+        advertisingBadgeText={advertisingBadgeText}
+        isAdvertising={isAdvertising}
+        bluetoothState={bluetoothState}
+        onStartAdvertising={() => handleStartAdvertising(false)}
+        onStopAdvertising={handleStopAdvertising}
+        unviewedCount={unviewedCount}
+        onNotificationsPress={() => {
+          markNotificationsAsViewed();
+          navigation.navigate('Notifications', { notifications: wsNotifications });
+        }}
+      />
 
       {activeTab === 'home' ? (
-        
         <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 0 }} style={{ flex: 1 }}>
           <View>
             <Text>
@@ -599,7 +414,7 @@ const HomeScreen = () => {
             </Text>
           </View>
           <View style={styles.cardRow}>
-            <Text style={styles.sectionTitle}>
+            <Text style={common.sectionTitle}>
               {t('home', 'todaysClasses')}
             </Text>
             {classes.map((classInfo, idx) => (

@@ -1,19 +1,18 @@
 
-
 import React, { useContext, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Alert, Animated } from 'react-native';
 import { PanGestureHandler, State } from 'react-native-gesture-handler';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { colorPalettes } from '../theme/colors';
 import { ThemeContext } from '../contexts/AppContexts';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useScreenStyles } from '../hooks/useStyles';
 
 const NotificationsScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const { theme } = useContext(ThemeContext);
-  const colors = colorPalettes[theme as 'dark' | 'light'] || colorPalettes.dark;
+  const { colors, styles, common } = useScreenStyles('home');
   const route = useRoute();
   type NotificationsParams = { notifications?: string[] };
   const params = route.params as NotificationsParams || {};

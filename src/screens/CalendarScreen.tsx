@@ -1,11 +1,11 @@
 import React, { useState, useContext, useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colorPalettes } from '../theme/colors';
 import { ThemeContext, UserContext } from '../contexts/AppContexts';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTranslation } from '../hooks/useTranslation';
+import { useScreenStyles } from '../hooks/useStyles';
 
 
 // Configuración de idioma para el calendario
@@ -41,64 +41,123 @@ const getMarkedDates = (colors: any): Record<string, any> => {
 const CalendarScreen = () => {
   const [selectedDate, setSelectedDate] = useState('');
   const { theme } = useContext(ThemeContext);
-  const colors = colorPalettes[theme as 'dark' | 'light'] || colorPalettes.dark;
+  const { colors, styles, common } = useScreenStyles('calendar');
   const { setUser, lang } = useContext(UserContext);
   const { t } = useTranslation();
 
-  const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: colors.background },
-    eventList: { flex: 1, padding: 20 },
-    eventCard: { backgroundColor: colors.card, borderRadius: 16, marginBottom: 16, padding: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 3, elevation: 2 },
-    eventName: { color: colors.text, fontWeight: 'bold', fontSize: 18, marginBottom: 2 },
-    eventTime: { color: colors.textSecondary, fontSize: 15, marginBottom: 8 },
-    attendanceRow: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
-    noEvents: { color: colors.textSecondary, fontSize: 16, textAlign: 'center', marginTop: 32 },
-  });
+  // Debug: Log para verificar que los colores cambien
+  console.log('Calendar theme:', theme, 'Background color:', colors.background, 'Text color:', colors.text);
 
+  // Crear el tema del calendario con dependencias correctas
   const calendarTheme = useMemo(() => ({
     backgroundColor: colors.background,
     calendarBackground: colors.background,
     textSectionTitleColor: colors.textSecondary,
     selectedDayBackgroundColor: colors.button,
-    selectedDayTextColor: '#fff',
+    selectedDayTextColor: '#ffffff',
     todayTextColor: colors.button,
     dayTextColor: colors.text,
-    textDisabledColor: colors.textSecondary,
+    textDisabledColor: colors.textSecondary + '60',
     dotColor: colors.button,
+    selectedDotColor: '#ffffff',
     arrowColor: colors.button,
-  }), [colors]);
+    monthTextColor: colors.text,
+    indicatorColor: colors.button,
+    textDayFontWeight: '400' as const,
+    textMonthFontWeight: '600' as const,
+    textDayHeaderFontWeight: '500' as const,
+    textDayFontSize: 16,
+    textMonthFontSize: 18,
+    textDayHeaderFontSize: 13,
+    // Forzar colores del stylesheet para asegurar cambios de tema
+    'stylesheet.calendar.header': {
+      week: {
+        marginTop: 5,
+        flexDirection: 'row' as const,
+        justifyContent: 'space-around' as const,
+        backgroundColor: colors.card,
+        borderRadius: 8,
+        marginHorizontal: 12,
+        paddingVertical: 8,
+      }
+    },
+    'stylesheet.day.basic': {
+      base: {
+        width: 32,
+        height: 32,
+        alignItems: 'center' as const,
+        justifyContent: 'center' as const,
+      },
+      text: {
+        marginTop: 4,
+        fontSize: 16,
+        fontFamily: 'System',
+        fontWeight: '400' as const,
+        color: colors.text,
+      },
+      today: {
+        backgroundColor: colors.button + '20',
+        borderRadius: 16,
+      },
+      selected: {
+        backgroundColor: colors.button,
+        borderRadius: 16,
+      },
+    }
+  }), [colors, theme]);
+
+  // Memoizar las fechas marcadas para evitar recrearlas en cada render
+  const markedDates = useMemo(() => {
+    const marked = getMarkedDates(colors);
+    if (selectedDate) {
+      return {
+        ...marked,
+        [selectedDate]: {
+          selected: true,
+          selectedColor: colors.button,
+          selectedTextColor: colors.buttonText || '#fff',
+          ...marked[selectedDate]
+        }
+      };
+    }
+    return marked;
+  }, [colors, selectedDate, theme]);
 
   return (
-    <SafeAreaView style={styles.container} edges={["left", "right", "bottom"]}>
+    <SafeAreaView style={common.container} edges={["left", "right", "bottom"]}>
       <View>
-        <Text style={{ color: colors.text, fontSize: 30, fontWeight: 'bold', marginBottom: 20, textAlign: 'center' }}>
+        <Text style={styles.title}>
           {t('calendar', 'title')}
         </Text>
       </View>
-      <Calendar
-        markedDates={{
-          ...getMarkedDates(colors),
-          ...(selectedDate ? { [selectedDate]: { selected: true, selectedColor: colors.button, ...getMarkedDates(colors)[selectedDate] } } : {}),
-        }}
-        onDayPress={day => setSelectedDate(day.dateString)}
-        theme={calendarTheme}
-      />
-      <View style={styles.eventList}>
+      <View style={{ backgroundColor: colors.background, marginHorizontal: 16, borderRadius: 12, overflow: 'hidden' }}>
+        <Calendar
+          key={`calendar-${theme}-${colors.background}`} // Forzar re-render cuando cambie el tema
+          markedDates={markedDates}
+          onDayPress={day => setSelectedDate(day.dateString)}
+          theme={calendarTheme}
+          style={{
+            backgroundColor: colors.background,
+            borderRadius: 12,
+          }}
+        />
+      </View>
+      <View style={{ flex: 1, padding: 20 }}>
         {selectedDate && classEvents[selectedDate] ? (
           (classEvents[selectedDate] as ClassEvent[]).map((event: ClassEvent, idx: number) => (
             <View key={idx} style={styles.eventCard}>
               <Text style={styles.eventName}>{event.name}</Text>
               <Text style={styles.eventTime}>{event.time}</Text>
-              <View style={styles.attendanceRow}>
+              <View style={styles.eventStatus}>
                 <Ionicons name={event.attended ? 'checkmark-circle' : 'close-circle'} size={22} color={event.attended ? colors.success : colors.error} />
-                <Text style={{ color: event.attended ? colors.success : colors.error, marginLeft: 6 }}>
+                <Text style={[styles.eventStatusText, { color: event.attended ? colors.success : colors.error }]}>
                   {event.attended ? 'Asististe' : 'Faltaste'}
                 </Text>
               </View>
             </View>
           ))
         ) : (
-          <Text style={styles.noEvents}>No tienes clases este día.</Text>
+          <Text style={styles.noEventsText}>No tienes clases este día.</Text>
         )}
       </View>
     </SafeAreaView>

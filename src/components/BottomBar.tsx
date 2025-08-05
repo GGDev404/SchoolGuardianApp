@@ -30,10 +30,10 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     borderTopWidth: 1,
-    borderTopColor: '#ccc', // Default border color, can be overridden by props
+    borderTopColor: '#ccc',
     paddingHorizontal: 20,
     paddingVertical: 10,
-    backgroundColor: '#fff', // Default background color, can be overridden by props
+    backgroundColor: '#fff',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.1,

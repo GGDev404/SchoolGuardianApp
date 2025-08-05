@@ -4,15 +4,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { colorPalettes } from '../theme/colors';
 import { ThemeContext, UserContext } from '../contexts/AppContexts';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useScreenStyles } from '../hooks/useStyles';
 
 const EditProfileScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const { theme } = useContext(ThemeContext);
   const { user, setUser } = useContext(UserContext);
-  const colors = colorPalettes[theme as 'dark' | 'light'] || colorPalettes.dark;
+  const { colors, styles, common } = useScreenStyles('auth');
 
   const [formData, setFormData] = useState({
     name: user?.name || '',
