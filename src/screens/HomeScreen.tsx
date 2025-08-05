@@ -1,8 +1,9 @@
 // Pantalla principal de la app
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useCallback } from 'react';
 import { t } from '../i18n';
 import { Text, View, StyleSheet, ScrollView, Image, TouchableOpacity, Platform, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import PushNotification from 'react-native-push-notification';
 import { colorPalettes } from '../theme/colors';
 import { ThemeContext, UserContext } from '../App';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -194,10 +195,106 @@ const HomeScreen = () => {
   // Calcular notificaciones no vistas
   const unviewedNotifications = wsNotifications.filter(notification => !viewedNotifications.has(notification));
   const unviewedCount = unviewedNotifications.length;
+
+  // Función para filtrar notificaciones válidas (solo asistencias)
+  const isValidNotification = (message: string): boolean => {
+    if (typeof message !== 'string') return false;
+    
+    const lowerMessage = message.toLowerCase();
+    
+    // Filtrar mensajes que no deben mostrarse
+    if (lowerMessage.includes('limpi') || 
+        lowerMessage.includes('clean') || 
+        lowerMessage.includes('clear') ||
+        lowerMessage.includes('system') ||
+        lowerMessage.includes('debug') ||
+        lowerMessage.includes('test')) {
+      return false;
+    }
+    
+    // Solo permitir notificaciones de asistencia
+    return lowerMessage.includes('presente') || 
+           lowerMessage.includes('ausente') || 
+           lowerMessage.includes('asistencia') ||
+           lowerMessage.includes('attendance') ||
+           lowerMessage.includes('tardanza') ||
+           lowerMessage.includes('late');
+  };
+
+  // Función para enviar notificación del sistema
+  const sendSystemNotification = useCallback((message: string) => {
+    console.log('Enviando notificación del sistema:', message);
+    if (Platform.OS === 'android' || Platform.OS === 'ios') {
+      PushNotification.localNotification({
+        channelId: 'attendance-channel',
+        title: 'Registro de Asistencia',
+        message: message,
+        playSound: true,
+        soundName: 'default',
+        importance: 'high',
+        vibrate: true,
+        autoCancel: true,
+        largeIcon: 'ic_launcher',
+        smallIcon: 'ic_launcher',
+      });
+      console.log('Notificación del sistema enviada');
+    } else {
+      console.log('Plataforma no soportada para notificaciones');
+    }
+  }, []);
+
+  // Función para agregar notificación (con filtros y push)
+  const addNotification = useCallback((message: string) => {
+    if (!isValidNotification(message)) {
+      console.log('Notificación filtrada:', message);
+      return;
+    }
+    
+    console.log('Agregando notificación válida:', message);
+    setWsNotifications(prev => {
+      const newNotifications = [message, ...prev].slice(0, 10);
+      console.log('Nuevas notificaciones:', newNotifications);
+      return newNotifications;
+    });
+    
+    // Enviar notificación del sistema
+    sendSystemNotification(message);
+  }, [sendSystemNotification]);
   
   // Cargar notificaciones vistas al inicio
   useEffect(() => {
     loadViewedNotifications();
+    
+    // Configurar notificaciones push
+    PushNotification.configure({
+      onRegister: function (token: any) {
+        console.log('TOKEN:', token);
+      },
+      onNotification: function (notification: any) {
+        console.log('NOTIFICATION:', notification);
+      },
+      permissions: {
+        alert: true,
+        badge: true,
+        sound: true,
+      },
+      popInitialNotification: true,
+      requestPermissions: Platform.OS === 'ios',
+    });
+
+    // Crear canal para Android
+    if (Platform.OS === 'android') {
+      PushNotification.createChannel(
+        {
+          channelId: 'attendance-channel',
+          channelName: 'Notificaciones de Asistencia',
+          channelDescription: 'Notificaciones para registros de asistencia',
+          importance: 4,
+          vibrate: true,
+        },
+        (created: any) => console.log(`Canal creado: ${created}`)
+      );
+    }
   }, []);
 
   // Limpiar notificaciones si se recibe el parámetro
@@ -233,18 +330,18 @@ const HomeScreen = () => {
             const status = lastPing ? lastPing.status : 'Sin registro';
             const time = lastPing ? new Date(lastPing.ping_time).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : '';
             const msg = `${status} ${time ? `a las ${time}` : ''}`;
-            setWsNotifications(prev => [msg, ...prev].slice(0, 10));
+            addNotification(msg);
           }
         } else if (data && data.notification) {
-          setWsNotifications(prev => [data.notification, ...prev].slice(0, 10));
+          addNotification(data.notification);
         } else if (typeof data === 'string') {
-          setWsNotifications(prev => [data, ...prev].slice(0, 10));
+          addNotification(data);
         } else {
-          setWsNotifications(prev => [event.data, ...prev].slice(0, 10));
+          addNotification(event.data);
         }
         console.log('WS mensaje:', data);
       } catch (e) {
-        setWsNotifications(prev => [event.data, ...prev].slice(0, 10));
+        addNotification(event.data);
       }
     };
     ws.onerror = (err) => {
@@ -256,7 +353,7 @@ const HomeScreen = () => {
     return () => {
       ws.close();
     };
-  }, []);
+  }, [addNotification, user?.id]);
   // Configuración de idioma para el calendario
   LocaleConfig.locales['es'] = {
     monthNames: ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],

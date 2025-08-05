@@ -119,4 +119,25 @@ dependencies {
     }
 }
 
+configurations.all {
+    resolutionStrategy {
+        // Force the use of AndroidX instead of Android Support Library
+        force 'androidx.core:core:1.16.0'
+        force 'androidx.appcompat:appcompat:1.6.1'
+        force 'androidx.fragment:fragment:1.6.2'
+        
+        // Exclude conflicting support libraries
+        eachDependency { details ->
+            if (details.requested.group == 'com.android.support') {
+                details.useTarget 'androidx:' + details.requested.name + ':1.0.0'
+            }
+        }
+    }
+    
+    exclude group: 'com.android.support', module: 'support-compat'
+    exclude group: 'com.android.support', module: 'support-v4'
+    exclude group: 'com.android.support', module: 'appcompat-v7'
+    exclude group: 'com.android.support', module: 'support-annotations'
+}
+
 apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"

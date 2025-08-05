@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colorPalettes } from '../theme/colors';
@@ -54,8 +54,7 @@ const CalendarScreen = () => {
     noEvents: { color: colors.textSecondary, fontSize: 16, textAlign: 'center', marginTop: 32 },
   });
 
-  // Fuerza que el objeto de tema cambie con el tema
-  const calendarTheme = {
+  const calendarTheme = useMemo(() => ({
     backgroundColor: colors.background,
     calendarBackground: colors.background,
     textSectionTitleColor: colors.textSecondary,
@@ -66,7 +65,7 @@ const CalendarScreen = () => {
     textDisabledColor: colors.textSecondary,
     dotColor: colors.button,
     arrowColor: colors.button,
-  };
+  }), [colors]);
 
   return (
     <SafeAreaView style={styles.container} edges={["left", "right", "bottom"]}>

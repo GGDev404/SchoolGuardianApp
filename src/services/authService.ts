@@ -1,6 +1,6 @@
 const API_URL = 'https://api-schoolguardian.onrender.com/api/users';
 
-export async function signUp({ name, email, password, role, user_uuid }: {
+export async function signUp({ name, email, password, role, user_uuid, matricula }: {
   name: string;
   email: string;
   password: string;
@@ -8,7 +8,7 @@ export async function signUp({ name, email, password, role, user_uuid }: {
   user_uuid?: string;
   matricula?: string;
 }) {
-  const body: any = { name, email, password, role };
+  const body: any = { name, email, password, role, matricula };
   if (role === 'Student' && user_uuid) body['user_uuid'] = user_uuid;
   const res = await fetch(API_URL, {
     method: 'POST',

@@ -14,7 +14,8 @@ export async function initializeDeviceUUID(addLog: (msg: string) => void, setDev
     addLog(t('es', 'ble', 'initializingUUID'));
     let storedUUID = await AsyncStorage.getItem('@deviceUUID');
     if (!storedUUID) {
-      storedUUID = uuid.v4().replace(/-/g, '').substring(0, 16);
+      // Generar UUID completo con formato estándar (con guiones)
+      storedUUID = uuid.v4() as string;
       await AsyncStorage.setItem('@deviceUUID', storedUUID);
       addLog(t('es', 'ble', 'newUUIDGenerated') + `: ${storedUUID}`);
     } else {

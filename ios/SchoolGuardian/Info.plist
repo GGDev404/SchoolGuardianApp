@@ -26,18 +26,27 @@
 	<true/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
-	  <!-- Do not change NSAllowsArbitraryLoads to true, or you will risk app rejection! -->
 		<key>NSAllowsArbitraryLoads</key>
 		<false/>
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string/>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Esta aplicación usa Bluetooth para conectar con dispositivos cercanos.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>Esta aplicación usa Bluetooth para comunicarse con dispositivos externos.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Esta aplicación necesita acceso a la cámara para tomar fotos de perfil</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Esta aplicación necesita acceso a la ubicación para funcionar con dispositivos Bluetooth cercanos.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Esta aplicación necesita acceso a la galería para seleccionar fotos de perfil</string>
+	<key>RCTNewArchEnabled</key>
+	<false/>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Ionicons.ttf</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>
